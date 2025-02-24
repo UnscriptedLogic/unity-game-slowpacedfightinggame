@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: b309bc7e7a14dd141b32f975226f4a6b
+timeCreated: 1456745815
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 41613
+  packageName: Auto Texture Tiling Tool
+  packageVersion: 1.81
+  assetPath: Assets/AutoTextureTilingTool/Scripts/AutoTiling/Editor/ATTHandles.cs
+  uploadId: 290327

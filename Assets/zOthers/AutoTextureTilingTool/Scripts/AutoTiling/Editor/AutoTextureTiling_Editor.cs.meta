@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 6926debb83356d249a47eee5dee16b36
+timeCreated: 1523978378
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 41613
+  packageName: Auto Texture Tiling Tool
+  packageVersion: 1.81
+  assetPath: Assets/AutoTextureTilingTool/Scripts/AutoTiling/Editor/AutoTextureTiling_Editor.cs
+  uploadId: 290327

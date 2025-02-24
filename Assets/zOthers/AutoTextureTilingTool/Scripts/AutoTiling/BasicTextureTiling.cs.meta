@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 678fe04fbc3a540429b228f3452abdc4
+timeCreated: 1488966956
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 41613
+  packageName: Auto Texture Tiling Tool
+  packageVersion: 1.81
+  assetPath: Assets/AutoTextureTilingTool/Scripts/AutoTiling/BasicTextureTiling.cs
+  uploadId: 290327
