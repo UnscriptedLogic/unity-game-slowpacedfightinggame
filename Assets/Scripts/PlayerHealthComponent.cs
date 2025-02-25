@@ -73,7 +73,11 @@ public class PlayerHealthComponent : PlayerBaseComponent
 
         if (IsOwner)
         {
-            context.AttachUIWidget(healthBarUIPrefab).Initialize(health);
+            context.AttachUIWidget(healthBarUIPrefab).Initialize(health, UIC_HealthBarUI.VisualType.Self);
+        }
+        else
+        {
+            transform.GetComponent<P_DefaultPlayerPawn>().AttachUIWidget(healthBarUIPrefab).Initialize(health, UIC_HealthBarUI.VisualType.Enemy);
         }
     }
 
