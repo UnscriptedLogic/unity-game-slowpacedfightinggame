@@ -184,6 +184,8 @@ MonoBehaviour:
     SpacePriority: 0
     ShiftPriority: 0
     InteractPriority: 0
+  playerRenderer: {fileID: 6788260694674454019}
+  damageMaterial: {fileID: 2100000, guid: e5b2a95788115794f90d802519e8c9c1, type: 2}
   healthModifyDisplayPrefab: {fileID: 1220566987335893109, guid: a62865118700137469265548fd94e2c8,
     type: 3}
   healthBarUIPrefab: {fileID: 4728605071609316749, guid: a4adb0ce20660e448a0f824a772d2806,
@@ -1133,7 +1135,7 @@ MonoBehaviour:
     InteractPriority: 0
   animator: {fileID: 6127877028235098565}
   networkAnimator: {fileID: 2990895482271402074}
-  playerStateComponent: {fileID: 0}
+  playerStateComponent: {fileID: 4609101280086281784}
 --- !u!114 &4482245686930875562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1231,23 +1233,31 @@ MonoBehaviour:
     vfx: {fileID: 5826393286164639083, guid: 1e25916eae9eb194184e6a4b4bb25737, type: 3}
     position: {x: 0.085, y: 1.078, z: 1.281}
     rotation: {x: 0.00000042688683, y: 284.99997, z: 356.10117}
-    delay: 0.2
+    delay: 0
     cleanUpTimer: 1
   attack2VFX:
     vfx: {fileID: 5826393286164639083, guid: 622b4347ff2166349b99d04a5db7690d, type: 3}
     position: {x: 0.581, y: 1.196, z: 1.15}
     rotation: {x: 41.79757, y: 265.80875, z: 352.8608}
-    delay: 0.4
+    delay: 0
     cleanUpTimer: 1
   attack3VFX:
     vfx: {fileID: 5826393286164639083, guid: 784685db8941a9e489e2c3d3bae0ec13, type: 3}
     position: {x: 0.251, y: 1.087, z: 1.143}
     rotation: {x: 32.05496, y: 277.99222, z: 356.67044}
-    delay: 0.5
+    delay: 0
     cleanUpTimer: 1
+  hitLandedVFXPrefab: {fileID: 3278228163150772985, guid: 6f485f5c150c58541910563a9b7b68d4,
+    type: 3}
 --- !u!4 &4117388859398691233 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0d43e28dbc4004a4cae1073264fc7c05,
+    type: 3}
+  m_PrefabInstance: {fileID: 4515243623819869770}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &6788260694674454019 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6961968014416693321, guid: 0d43e28dbc4004a4cae1073264fc7c05,
     type: 3}
   m_PrefabInstance: {fileID: 4515243623819869770}
   m_PrefabAsset: {fileID: 0}

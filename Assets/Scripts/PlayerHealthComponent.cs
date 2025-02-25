@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnscriptedEngine;
@@ -33,6 +34,8 @@ public class HealthSettings : INetworkSerializable
 
 public class PlayerHealthComponent : PlayerBaseComponent
 {
+    [SerializeField] private Renderer playerRenderer;
+    [SerializeField] private Material damageMaterial;
     [SerializeField] private HealthModifyDisplay healthModifyDisplayPrefab;
     [SerializeField] private UIC_HealthBarUI healthBarUIPrefab;
     
@@ -118,6 +121,8 @@ public class PlayerHealthComponent : PlayerBaseComponent
     [ClientRpc]
     private void TakeDamageClientRpc(DamageSettings damageSettings)
     {
+        StartCoroutine(FlashDamage());
+
         if (!IsOwner) return;
 
         ApplyKnockback(damageSettings);
@@ -136,5 +141,13 @@ public class PlayerHealthComponent : PlayerBaseComponent
     private void ResetKnockback()
     {
         rb.velocity = Vector3.zero;
+    }
+
+    private IEnumerator FlashDamage()
+    {
+        Material original = playerRenderer.material;
+        playerRenderer.material = damageMaterial;
+        yield return new WaitForSeconds(0.1f);
+        playerRenderer.material = original;
     }
 }

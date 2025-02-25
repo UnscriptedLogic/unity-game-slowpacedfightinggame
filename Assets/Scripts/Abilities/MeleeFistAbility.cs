@@ -26,6 +26,7 @@ public class MeleeFistAbility : Ability
     [SerializeField] private VFXSettings attack1VFX;
     [SerializeField] private VFXSettings attack2VFX;
     [SerializeField] private VFXSettings attack3VFX;
+    [SerializeField] private GameObject hitLandedVFXPrefab;
 
     private CinemachineImpulseSource impulseSource;
     private NetworkVariable<int> attackCount = new NetworkVariable<int>(2, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -117,6 +118,10 @@ public class MeleeFistAbility : Ability
             playerAudioComponent.PlayAudio(hitSFXes.GetRandomElement(), 0.2f);
             impulseSource.GenerateImpulse(impulse);
 
+            GameObject hitLanded = Instantiate(hitLandedVFXPrefab, target.transform.position, Quaternion.identity);
+            hitLanded.transform.forward = transform.forward;
+            Destroy(hitLanded, 1f);
+
             alreadyHit.Add(target);
         }
     }
@@ -152,19 +157,16 @@ public class MeleeFistAbility : Ability
         if (attackCount.Value == 2)
         {
             playerAnimator.Attack1();
-            StartCoroutine(PlayVFX(attack1VFX));
             animationTime = attack1.length;
         }
         else if (attackCount.Value == 0)
         {
             playerAnimator.Attack2();
-            StartCoroutine(PlayVFX(attack2VFX));
             animationTime = attack2.length;
         }
         else if (attackCount.Value == 1)
         {
             playerAnimator.Attack3();
-            StartCoroutine(PlayVFX(attack3VFX));
             animationTime = attack3.length;
         }
 
@@ -177,6 +179,8 @@ public class MeleeFistAbility : Ability
     [ClientRpc]
     private void UseAbilityClientRpc(ClientRpcParams clientParams)
     {
+        alreadyHit.Clear();
+
         StartAbility(this);
     }
 
@@ -186,6 +190,10 @@ public class MeleeFistAbility : Ability
 
     }
 
+    public void PlayVFX1() => StartCoroutine(PlayVFX(attack1VFX));
+    public void PlayVFX2() => StartCoroutine(PlayVFX(attack2VFX));
+    public void PlayVFX3() => StartCoroutine(PlayVFX(attack3VFX));
+
     private IEnumerator PlayVFX(VFXSettings settings)
     {
         yield return new WaitForSeconds(settings.delay);
@@ -194,7 +202,6 @@ public class MeleeFistAbility : Ability
         Vector3 pos = transform.position + (transform.rotation * settings.position);
 
         GameObject vfx = Instantiate(settings.vfx, pos, transform.rotation * Quaternion.Euler(settings.rotation));
-        vfx.GetComponent<NetworkObject>().Spawn();
         Destroy(vfx, settings.cleanUpTimer);
     }
 }

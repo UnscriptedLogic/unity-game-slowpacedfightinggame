@@ -116,6 +116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   theme: {fileID: 11400000, guid: 76468dfa929e81b47bc071460a098e62, type: 2}
+  followLerp: 10
   healthImg: {fileID: 1065256012372190045}
   healthTMP: {fileID: 9026673517610090563}
 --- !u!1 &2383717361252607218
@@ -218,7 +219,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5544751474927174926}
   m_LocalRotation: {x: -0, y: -0.13052596, z: -0, w: 0.99144495}
-  m_LocalPosition: {x: 0, y: 0, z: 120.6}
+  m_LocalPosition: {x: 0, y: 0, z: 106}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -229,7 +230,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: -15, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -101.9, y: 41.000008}
+  m_AnchoredPosition: {x: -155, y: 41.000008}
   m_SizeDelta: {x: 14.83, y: 75.93}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6579776524433989900
