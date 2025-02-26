@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7979062244062165514}
   - component: {fileID: -9223118243161263780}
+  - component: {fileID: 9040237288136278128}
   m_Layer: 0
   m_Name: AIController
   m_TagString: Untagged
@@ -52,3 +53,15 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &9040237288136278128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4038753311531122124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47b96202a3eba914788cd0bbeaa6a688, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

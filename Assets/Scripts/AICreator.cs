@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+using InteractionSystem;
 using Unity.Netcode;
 using UnityEngine;
 
-public class AICreator : MonoBehaviour
+public class AICreator : NetworkBehaviour
 {
     [SerializeField] private C_AIController aiControllerPrefab;
     [SerializeField] private P_DefaultPlayerPawn aiPawnPrefab;
@@ -11,11 +10,17 @@ public class AICreator : MonoBehaviour
     private C_AIController aiController;
     private P_DefaultPlayerPawn aiPawn;
 
+    public void SpawnAI(GameObject context)
+    {
+        RequestSpawnAIServerRpc();
+    }
 
     [ServerRpc(RequireOwnership = false)]
     private void RequestSpawnAIServerRpc()
     {
+        if (aiPawn && aiController != null) return;
 
+        Server_SpawnAI();
     }
 
     private void Server_SpawnAI()

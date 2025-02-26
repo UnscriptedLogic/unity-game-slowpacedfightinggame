@@ -41,7 +41,7 @@ public class MeleeFistAbility : Ability
 
     private void Start()
     {
-        if (IsServer)
+        if (!IsOwner)
         {
             playerStateComponent = transform.parent.GetComponent<PlayerStateComponent>();
             playerAudioComponent = transform.parent.GetComponent<PlayerAudioComponent>();
@@ -113,9 +113,10 @@ public class MeleeFistAbility : Ability
                     type = StatusEffect.Type.Stun,
                     duration = stunDuration
                 });
+
+                OnHitClientRpc();
             }
 
-            playerAudioComponent.PlayAudio(hitSFXes.GetRandomElement(), 0.2f);
             impulseSource.GenerateImpulse(impulse);
 
             GameObject hitLanded = Instantiate(hitLandedVFXPrefab, target.transform.position, Quaternion.identity);
@@ -124,6 +125,13 @@ public class MeleeFistAbility : Ability
 
             alreadyHit.Add(target);
         }
+    }
+
+
+    [ClientRpc]
+    private void OnHitClientRpc()
+    {
+        playerAudioComponent.PlayAudio(hitSFXes.GetRandomElement(), 0.2f);
     }
 
     private void Update()
@@ -173,7 +181,6 @@ public class MeleeFistAbility : Ability
         attackCount.Value = (attackCount.Value + 1) % 3;
 
         UseAbilityClientRpc(clientParams);
-        PlayerAttackClientRpc(serverParams.Receive.SenderClientId);
     }
 
     [ClientRpc]
@@ -182,12 +189,6 @@ public class MeleeFistAbility : Ability
         alreadyHit.Clear();
 
         StartAbility(this);
-    }
-
-    [ClientRpc]
-    private void PlayerAttackClientRpc(ulong sender, ClientRpcParams clientParams = default)
-    {
-
     }
 
     public void PlayVFX1() => StartCoroutine(PlayVFX(attack1VFX));
