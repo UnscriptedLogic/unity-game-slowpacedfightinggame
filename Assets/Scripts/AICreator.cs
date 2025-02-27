@@ -26,7 +26,7 @@ public class AICreator : NetworkBehaviour
     private void Server_SpawnAI()
     {
         aiController = Instantiate(aiControllerPrefab);
-        aiPawn = Instantiate(aiPawnPrefab);
+        aiPawn = Instantiate(aiPawnPrefab, transform.position, transform.rotation);
 
         aiController.GetComponent<NetworkObject>().Spawn(true);
         aiPawn.GetComponent<NetworkObject>().Spawn(true);

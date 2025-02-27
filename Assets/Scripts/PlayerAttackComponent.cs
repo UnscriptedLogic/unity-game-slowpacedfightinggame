@@ -13,10 +13,14 @@ public class PlayerAttackComponent : PlayerBaseComponent
     [SerializeField] private Ability meleeAbility;
     [SerializeField] private TriggerHandler meleeHitbox;
 
+    [SerializeField] private UIC_AbilityHUD abilityHUDPrefab;
+
     private PlayerStateComponent playerStateComponent;
 
     private Ability currentAbility;
     private States currentState;
+
+    private UIC_AbilityHUD abilityHUD;
 
     public TriggerHandler MeleeHitbox => meleeHitbox;
 
@@ -29,6 +33,9 @@ public class PlayerAttackComponent : PlayerBaseComponent
         meleeAbility.Initialize(context, this);
         meleeAbility.OnStarted += OnAbilityStarted;
         meleeAbility.OnFinished += OnAbilityFinished;
+
+        abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
+        abilityHUD.Initialize();
     }
 
     public override void OnDefaultLeftMouseDown(out bool swallowInput)
@@ -115,5 +122,12 @@ public class PlayerAttackComponent : PlayerBaseComponent
     {
         currentAbility = null;
         currentState = States.Idle;
+    }
+
+    public override void DeInitialize(P_PlayerPawn context)
+    {
+        context.DettachUIWidget(abilityHUD);
+
+        base.DeInitialize(context);
     }
 }

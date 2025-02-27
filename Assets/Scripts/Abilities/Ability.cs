@@ -6,6 +6,8 @@ public abstract class Ability : NetworkBehaviour
     protected P_PlayerPawn context;
     protected PlayerAttackComponent attackComponent;
 
+    public NetworkVariable<float> cooldown = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     public event Action<Ability> OnStarted;
     public event Action<Ability> OnFinished;
 

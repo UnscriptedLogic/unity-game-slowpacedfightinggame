@@ -1186,6 +1186,8 @@ MonoBehaviour:
     InteractPriority: 0
   meleeAbility: {fileID: 8481660267770053693}
   meleeHitbox: {fileID: 5250645953316551828}
+  abilityHUDPrefab: {fileID: 8955138282916284445, guid: de622d9e0d12d694f98b71972d5d4786,
+    type: 3}
 --- !u!114 &3247751892516704061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1251,6 +1253,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04af825444defc245857627ff05574e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cooldown:
+    m_InternalValue: 0
   attack1: {fileID: 7400000, guid: 5a10923afd08e2649be4c80192a8ee6f, type: 2}
   attack2: {fileID: 7400000, guid: 874fcd9ad066f55408ee53ca1280aa1c, type: 2}
   attack3: {fileID: 7400000, guid: e78e092f7f1c52a41bbff27e39bd016e, type: 2}

@@ -35,8 +35,6 @@ public class MeleeFistAbility : Ability
     private PlayerAudioComponent playerAudioComponent;
     private PlayerStateComponent playerStateComponent;
 
-    private float animationTime;
-
     private List<P_PlayerPawn> alreadyHit = new List<P_PlayerPawn>();
 
     private void Start()
@@ -136,12 +134,15 @@ public class MeleeFistAbility : Ability
 
     private void Update()
     {
-        if (animationTime > 0)
+        if (IsServer)
         {
-            animationTime -= Time.deltaTime;
-            if (animationTime <= 0)
+            if (cooldown.Value > 0)
             {
-                FinishAbility(this);
+                cooldown.Value -= Time.deltaTime;
+                if (cooldown.Value <= 0)
+                {
+                    FinishAbility(this);
+                }
             }
         }
     }
@@ -150,7 +151,7 @@ public class MeleeFistAbility : Ability
     public override void RequestUseAbilityServerRpc(ServerRpcParams serverParams)
     {
         if (playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return;
-        if (animationTime > 0) return;
+        if (cooldown.Value > 0) return;
 
         ClientRpcParams clientParams = new ClientRpcParams
         {
@@ -165,17 +166,17 @@ public class MeleeFistAbility : Ability
         if (attackCount.Value == 2)
         {
             playerAnimator.Attack1();
-            animationTime = attack1.length;
+            cooldown.Value = attack1.length;
         }
         else if (attackCount.Value == 0)
         {
             playerAnimator.Attack2();
-            animationTime = attack2.length;
+            cooldown.Value = attack2.length;
         }
         else if (attackCount.Value == 1)
         {
             playerAnimator.Attack3();
-            animationTime = attack3.length;
+            cooldown.Value = attack3.length;
         }
 
         attackCount.Value = (attackCount.Value + 1) % 3;
