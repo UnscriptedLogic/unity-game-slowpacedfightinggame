@@ -35,15 +35,24 @@ public class PlayerAttackComponent : PlayerBaseComponent
     {
         base.OnDefaultLeftMouseDown(out swallowInput);
 
-        ServerRpcParams serverParams = new ServerRpcParams
+        if (IsClient)
         {
-            Receive = new ServerRpcReceiveParams
+            ServerRpcParams serverParams = new ServerRpcParams
             {
-                SenderClientId = OwnerClientId
-            }
-        };
+                Receive = new ServerRpcReceiveParams
+                {
+                    SenderClientId = OwnerClientId
+                }
+            };
 
-        RequestUseAbilityServerRpc(serverParams);
+            RequestUseAbilityServerRpc(serverParams);
+        }
+
+        if (IsServer)
+        {
+            if (currentState != States.Idle) return;
+            UseAbilityClientRpc(new ClientRpcParams());
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]

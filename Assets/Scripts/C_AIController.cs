@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnscriptedEngine;
 
-public class C_AIController : UController
+public class C_AIController : C_PlayerController
 {
-    private float spamInterval = 0.1f;
+    private float spamInterval = 0.5f;
     private float interval;
 
     public override void PossessPawn(ULevelPawn pawn, bool overrideCurrentPawn = false)
@@ -19,7 +19,7 @@ public class C_AIController : UController
 
         if (interval <= 0f)
         {
-            OnDefaultLeftMouseDown();
+            possessedPawn.OnDefaultLeftMouseDown();
 
             interval = spamInterval;
         }

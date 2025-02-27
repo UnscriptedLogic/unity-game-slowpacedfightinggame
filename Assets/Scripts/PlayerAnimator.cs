@@ -25,12 +25,14 @@ public class PlayerAnimator : PlayerBaseComponent
     {
         if (playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun))
         {
-            networkAnimator.SetTrigger("Stunned");
+            networkAnimator.SetTrigger("LowerStunned");
+            networkAnimator.SetTrigger("UpperStunned");
         }
 
         if (playerStateComponent.StatusEffects.Count <= 0)
         {
-            networkAnimator.SetTrigger("FinishStun");
+            networkAnimator.SetTrigger("FinishLowerStun");
+            networkAnimator.SetTrigger("FinishUpperStun");
         }
     }
 
@@ -41,13 +43,11 @@ public class PlayerAnimator : PlayerBaseComponent
         AnimateWalkServerRpc(inputDir);
     }
 
-
     [ServerRpc(RequireOwnership = false)]
     private void AnimateWalkServerRpc(Vector2 inputDir)
     {
         animator.SetFloat("Speed", inputDir.magnitude);
     }
-
 
     internal void Attack1()
     {

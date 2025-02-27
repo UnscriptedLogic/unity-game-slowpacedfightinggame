@@ -57,7 +57,7 @@ public class MeleeFistAbility : Ability
     {
         base.Initialize(context, attackComponent);
 
-        if (IsClient)
+        if (IsOwner)
         {
             playerStateComponent = context.GetPlayerComponent<PlayerStateComponent>();
             playerAnimator = context.GetPlayerComponent<PlayerAnimator>();
