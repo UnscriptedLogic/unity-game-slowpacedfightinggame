@@ -17,6 +17,7 @@ public class MovementComponent : PlayerBaseComponent
     private float walkIntervalTimer;
 
     private PlayerAudioComponent playerAudioComponent;
+    private PlayerStateComponent playerStateComponent;
     private Rigidbody rb;
 
     private Vector3 prevPosition;
@@ -59,11 +60,20 @@ public class MovementComponent : PlayerBaseComponent
         tickTime = 1f / TICKS_PER_SECOND;
     }
 
+    private void Start()
+    {
+        if (IsServer)
+        {
+            playerStateComponent = GetComponent<PlayerStateComponent>();
+        }
+    }
+
     public override void Initialize(P_PlayerPawn context)
     {
         base.Initialize(context);
 
         playerAudioComponent = context.GetPlayerComponent<PlayerAudioComponent>();
+        playerStateComponent = context.GetPlayerComponent<PlayerStateComponent>();
 
         InputPriority.MovePriority = 1;
 
@@ -134,6 +144,8 @@ public class MovementComponent : PlayerBaseComponent
 
             if (movementSettings.InputDir.magnitude > 0.01f)
             {
+                if (playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return;
+
                 //move player using rigidbody
                 float efficiency = isGrounded ? 1f : 0.5f;
                 float speed = shiftPressed ? movementSettings.speed * movementSettings.sprintMultiplier : movementSettings.speed;
@@ -178,6 +190,8 @@ public class MovementComponent : PlayerBaseComponent
         {
             rb = GetComponent<Rigidbody>();
         }
+
+        if (playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return;
 
         Vector3 startPos = transform.position;
 
