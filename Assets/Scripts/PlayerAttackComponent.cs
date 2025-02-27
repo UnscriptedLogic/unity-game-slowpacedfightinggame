@@ -35,7 +35,7 @@ public class PlayerAttackComponent : PlayerBaseComponent
         meleeAbility.OnFinished += OnAbilityFinished;
 
         abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
-        abilityHUD.Initialize();
+        abilityHUD.Initialize(meleeAbility);
     }
 
     public override void OnDefaultLeftMouseDown(out bool swallowInput)

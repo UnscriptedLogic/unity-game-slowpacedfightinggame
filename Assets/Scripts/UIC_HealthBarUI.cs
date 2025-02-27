@@ -88,7 +88,7 @@ public class UIC_HealthBarUI : UCanvasController, ICanvasController
         enemyHP.SetActive(type == VisualType.Enemy);
     }
 
-    private void OnHealthChanged(float previousValue, float newValue)
+    private void OnHealthChanged(float previousValue, float newValue)   
     {
         float diff = newValue - previousValue;
         float fillAmount = newValue / 100f;
@@ -106,7 +106,7 @@ public class UIC_HealthBarUI : UCanvasController, ICanvasController
                     selfSet.SliderImg.color = Color.red;
                     selfSet.ValueTMP.color = Color.red;
                     selfSet.SliderImg.DOColor(originalColor, 0.25f).SetDelay(0.25f);
-                    selfSet.ValueTMP.DOColor(originalColor, 0.25f).SetDelay(0.25f);
+                    selfSet.ValueTMP.DOColor(Color.white, 0.25f).SetDelay(0.25f);
                 }
                 break;
 
