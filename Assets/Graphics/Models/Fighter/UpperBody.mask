@@ -12,7 +12,7 @@ AvatarMask:
   - m_Path: 
     m_Weight: 1
   - m_Path: Armature
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: Armature/LHeelIK
     m_Weight: 0
   - m_Path: Armature/LHeelIK/LFoot
@@ -33,29 +33,29 @@ AvatarMask:
     m_Weight: 0
   - m_Path: Armature/LowerBody/RHip/RThigh/RLeg
     m_Weight: 0
-  - m_Path: Armature/LowerBody/UpperBody
-    m_Weight: 1
-  - m_Path: Armature/LowerBody/UpperBody/LShoulder
-    m_Weight: 1
-  - m_Path: Armature/LowerBody/UpperBody/LShoulder/LUpperArm
-    m_Weight: 1
-  - m_Path: Armature/LowerBody/UpperBody/LShoulder/LUpperArm/LHand
-    m_Weight: 1
-  - m_Path: Armature/LowerBody/UpperBody/Neck
-    m_Weight: 1
-  - m_Path: Armature/LowerBody/UpperBody/Neck/Head
-    m_Weight: 1
-  - m_Path: Armature/LowerBody/UpperBody/RShoulder
-    m_Weight: 1
-  - m_Path: Armature/LowerBody/UpperBody/RShoulder/RUpperArm
-    m_Weight: 1
-  - m_Path: Armature/LowerBody/UpperBody/RShoulder/RUpperArm/RHand
-    m_Weight: 1
   - m_Path: Armature/RHeelIK
     m_Weight: 0
   - m_Path: Armature/RHeelIK/RFoot
     m_Weight: 0
   - m_Path: Armature/RKneeIK
     m_Weight: 0
-  - m_Path: BaseModel_2
+  - m_Path: Armature/UpperBody
+    m_Weight: 1
+  - m_Path: Armature/UpperBody/LShoulder
+    m_Weight: 1
+  - m_Path: Armature/UpperBody/LShoulder/LUpperArm
+    m_Weight: 1
+  - m_Path: Armature/UpperBody/LShoulder/LUpperArm/LHand
+    m_Weight: 1
+  - m_Path: Armature/UpperBody/Neck
+    m_Weight: 1
+  - m_Path: Armature/UpperBody/Neck/Head
+    m_Weight: 1
+  - m_Path: Armature/UpperBody/RShoulder
+    m_Weight: 1
+  - m_Path: Armature/UpperBody/RShoulder/RUpperArm
+    m_Weight: 1
+  - m_Path: Armature/UpperBody/RShoulder/RUpperArm/RHand
+    m_Weight: 1
+  - m_Path: BaseModel_2.001
     m_Weight: 0

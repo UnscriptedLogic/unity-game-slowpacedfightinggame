@@ -31,21 +31,14 @@ public class MeleeFistAbility : Ability
     private CinemachineImpulseSource impulseSource;
     private NetworkVariable<int> attackCount = new NetworkVariable<int>(2, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    private PlayerAnimator playerAnimator;
-    private PlayerAudioComponent playerAudioComponent;
-    private PlayerStateComponent playerStateComponent;
-
     private List<P_PlayerPawn> alreadyHit = new List<P_PlayerPawn>();
 
-    private void Start()
+    protected override void Start()
     {
-        if (!IsOwner)
-        {
-            playerStateComponent = transform.parent.GetComponent<PlayerStateComponent>();
-            playerAudioComponent = transform.parent.GetComponent<PlayerAudioComponent>();
-            playerAnimator = transform.GetComponent<PlayerAnimator>();
+        base.Start();
 
-            attackComponent = GetComponent<PlayerAttackComponent>();
+        if (IsServer)
+        {
             attackComponent.MeleeHitbox.TriggerEnter += OnHitboxTriggerEnter;
             impulseSource = attackComponent.GetComponent<CinemachineImpulseSource>();
         }
@@ -57,11 +50,7 @@ public class MeleeFistAbility : Ability
 
         if (IsOwner)
         {
-            playerStateComponent = context.GetPlayerComponent<PlayerStateComponent>();
-            playerAnimator = context.GetPlayerComponent<PlayerAnimator>();
-            playerAudioComponent = context.GetPlayerComponent<PlayerAudioComponent>();
             impulseSource = attackComponent.GetComponent<CinemachineImpulseSource>();
-
             attackComponent.MeleeHitbox.TriggerEnter += OnHitboxTriggerEnter;
         }
     }
@@ -129,28 +118,13 @@ public class MeleeFistAbility : Ability
     [ClientRpc]
     private void OnHitClientRpc()
     {
-        playerAudioComponent.PlayAudio(hitSFXes.GetRandomElement(), 0.2f);
-    }
-
-    private void Update()
-    {
-        if (IsServer)
-        {
-            if (cooldown.Value > 0)
-            {
-                cooldown.Value -= Time.deltaTime;
-                if (cooldown.Value <= 0)
-                {
-                    FinishAbility(this);
-                }
-            }
-        }
+        audioComponent.PlayAudio(hitSFXes.GetRandomElement(), 0.2f);
     }
 
     [ServerRpc(RequireOwnership = false)]
     public override void RequestUseAbilityServerRpc(ServerRpcParams serverParams)
     {
-        if (playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return;
+        if (stateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return;
         if (cooldown.Value > 0) return;
 
         ClientRpcParams clientParams = new ClientRpcParams
@@ -165,17 +139,17 @@ public class MeleeFistAbility : Ability
 
         if (attackCount.Value == 2)
         {
-            playerAnimator.Attack1();
+            animatorComponent.Attack1();
             cooldown.Value = attack1.length;
         }
         else if (attackCount.Value == 0)
         {
-            playerAnimator.Attack2();
+            animatorComponent.Attack2();
             cooldown.Value = attack2.length;
         }
         else if (attackCount.Value == 1)
         {
-            playerAnimator.Attack3();
+            animatorComponent.Attack3();
             cooldown.Value = attack3.length;
         }
 

@@ -1,5 +1,7 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerAttackComponent : PlayerBaseComponent
 {
@@ -11,12 +13,14 @@ public class PlayerAttackComponent : PlayerBaseComponent
     }
 
     [SerializeField] private Ability meleeAbility;
+    [SerializeField] private Ability ability1;
     [SerializeField] private TriggerHandler meleeHitbox;
 
     [SerializeField] private UIC_AbilityHUD abilityHUDPrefab;
 
     private PlayerStateComponent playerStateComponent;
 
+    private int abilityIndex;
     private Ability currentAbility;
     private States currentState;
 
@@ -35,13 +39,25 @@ public class PlayerAttackComponent : PlayerBaseComponent
         meleeAbility.OnFinished += OnAbilityFinished;
 
         abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
-        abilityHUD.Initialize(meleeAbility);
+        abilityHUD.Initialize(meleeAbility, ability1);
+
+        context.GetDefaultInputMap().FindAction("Ability1").performed += OnAbility1;
+    }
+
+    private void OnAbility1(InputAction.CallbackContext context)
+    {
+        AbilityConfig(1);
     }
 
     public override void OnDefaultLeftMouseDown(out bool swallowInput)
     {
         base.OnDefaultLeftMouseDown(out swallowInput);
 
+        AbilityConfig(0);
+    }
+
+    private void AbilityConfig(int abilityIndex)
+    {
         if (IsClient)
         {
             ServerRpcParams serverParams = new ServerRpcParams
@@ -52,18 +68,18 @@ public class PlayerAttackComponent : PlayerBaseComponent
                 }
             };
 
-            RequestUseAbilityServerRpc(serverParams);
+            RequestUseAbilityServerRpc(abilityIndex, serverParams);
         }
 
         if (IsServer)
         {
             if (currentState != States.Idle) return;
-            UseAbilityClientRpc(new ClientRpcParams());
+            UseAbilityClientRpc(abilityIndex, new ClientRpcParams());
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void RequestUseAbilityServerRpc(ServerRpcParams serverParams)
+    public void RequestUseAbilityServerRpc(int abilityIndex, ServerRpcParams serverParams)
     {
         ClientRpcParams clientParams = new ClientRpcParams
         {
@@ -75,11 +91,11 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
         if (currentState != States.Idle) return;
 
-        UseAbilityClientRpc(clientParams);
+        UseAbilityClientRpc(abilityIndex, clientParams);
     }
 
     [ClientRpc]
-    private void UseAbilityClientRpc(ClientRpcParams clientParams)
+    private void UseAbilityClientRpc(int abilityIndex, ClientRpcParams clientParams)
     {
         ServerRpcParams serverParams = new ServerRpcParams
         {
@@ -89,8 +105,16 @@ public class PlayerAttackComponent : PlayerBaseComponent
             }
         };
 
-        meleeAbility.RequestUseAbilityServerRpc(serverParams);
-    }
+        switch (abilityIndex)
+        {
+            case 0:
+                meleeAbility.RequestUseAbilityServerRpc(serverParams);
+                break;
+            case 1:
+                ability1.RequestUseAbilityServerRpc(serverParams);
+                break;
+        }
+    }    
 
     public override void UpdateTick(out bool swallowTick)
     {

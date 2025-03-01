@@ -406,7 +406,7 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
---- !u!43 &687637569
+--- !u!43 &424167541
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1086,7 +1086,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1545209066}
-  m_Mesh: {fileID: 687637569}
+  m_Mesh: {fileID: 424167541}
 --- !u!4 &1545209070
 Transform:
   m_ObjectHideFlags: 0

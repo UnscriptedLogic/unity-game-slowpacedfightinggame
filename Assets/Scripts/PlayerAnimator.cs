@@ -63,4 +63,9 @@ public class PlayerAnimator : PlayerBaseComponent
     {
         networkAnimator.SetTrigger("Attack3");
     }
+
+    internal void Ability1()
+    {
+        networkAnimator.SetTrigger("Ability1");
+    }
 }

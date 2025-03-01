@@ -195,6 +195,8 @@ public class MovementComponent : PlayerBaseComponent
 
         Vector3 startPos = transform.position;
 
+        if (lastData == null) return;
+
         Vector3 moveVector = transform.TransformDirection(lastData.input) * movementSettings.speed * Time.fixedDeltaTime;
         Physics.simulationMode = SimulationMode.Script;
         transform.position = lastData.position;
