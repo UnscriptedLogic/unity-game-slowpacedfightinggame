@@ -193,6 +193,8 @@ MonoBehaviour:
     type: 3}
   healthBarUIPrefab: {fileID: 4728605071609316749, guid: a4adb0ce20660e448a0f824a772d2806,
     type: 3}
+  ragdollPrefab: {fileID: 9208472720684690670, guid: d8eed71954b0c0b4cb2210e01d5cd8f5,
+    type: 3}
 --- !u!114 &2826168307467269284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -516,7 +518,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7625994944395358996}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.0000000018339568, y: 0.0000000024452758, z: -4.48453e-18,
+    w: 1}
   m_LocalPosition: {x: 1, y: 0.8000001, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1314,6 +1317,7 @@ MonoBehaviour:
   attack3: {fileID: 7400000, guid: e78e092f7f1c52a41bbff27e39bd016e, type: 2}
   hitSFXes:
   - {fileID: 8300000, guid: 4311718c8ea36eb47823edd6b6134c93, type: 3}
+  - {fileID: 8300000, guid: 3b26671352272b143854dd1f555e3201, type: 3}
   attack1VFX:
     vfx: {fileID: 5826393286164639083, guid: 1e25916eae9eb194184e6a4b4bb25737, type: 3}
     position: {x: 0.085, y: 1.078, z: 1.281}
@@ -1375,6 +1379,7 @@ MonoBehaviour:
   hookPrefab: {fileID: 2638882202443081225, guid: de2449495cf800340bacb189e7b02586,
     type: 3}
   throwAnimation: {fileID: 7400000, guid: c714a850f74aec14dab09ab55609f562, type: 2}
+  hooklandedSFX: {fileID: 8300000, guid: 3cc953a6a43ea6444b05bf38f73ed391, type: 3}
 --- !u!95 &7481510642489273277 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 0d43e28dbc4004a4cae1073264fc7c05,

@@ -8,6 +8,8 @@ public class HookAbility : Ability
     [SerializeField] private Hook hookPrefab;
     [SerializeField] private AnimationClip throwAnimation;
 
+    [SerializeField] private AudioClip hooklandedSFX;
+
     private ClientRpcParams clientRpcParams;
 
     protected override void Start()
@@ -54,6 +56,11 @@ public class HookAbility : Ability
         Hook hook = hookObject.GetComponent<Hook>();
         hook.Server_Initialize(OwnerClientId, transform.parent);
 
+        hook.OnHooked += () =>
+        {
+            audioComponent.PlayAudio(hooklandedSFX, 0.5f);
+        };
+
         HookThrownClientRpc(networkObject);
     }
 
@@ -62,7 +69,6 @@ public class HookAbility : Ability
     {
         StartAbility(this);
     }
-
 
     [ClientRpc]
     private void HookThrownClientRpc(NetworkObjectReference hookReference)

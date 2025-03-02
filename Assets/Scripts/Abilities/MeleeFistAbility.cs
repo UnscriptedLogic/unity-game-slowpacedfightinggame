@@ -86,6 +86,8 @@ public class MeleeFistAbility : Ability
 
             if (IsServer)
             {
+                OnHitClientRpc();
+
                 target.GetPlayerComponent<PlayerHealthComponent>().Server_TakeDamage(new DamageSettings()
                 {
                     damage = damage,
@@ -99,8 +101,6 @@ public class MeleeFistAbility : Ability
                     type = StatusEffect.Type.Stun,
                     duration = stunDuration
                 });
-
-                OnHitClientRpc();
             }
 
             impulseSource.GenerateImpulse(impulse);
@@ -117,7 +117,13 @@ public class MeleeFistAbility : Ability
     [ClientRpc]
     private void OnHitClientRpc()
     {
-        audioComponent.PlayAudio(hitSFXes.GetRandomElement(), 0.2f);
+        if (uses.Value == 2)
+        {
+            audioComponent.PlayAudio(hitSFXes[1], 0.5f);
+            return;
+        }
+
+        audioComponent.PlayAudio(hitSFXes[0], 0.2f);
     }
 
     [ServerRpc(RequireOwnership = false)]

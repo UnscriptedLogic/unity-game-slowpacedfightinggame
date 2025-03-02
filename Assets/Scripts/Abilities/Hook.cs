@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -13,6 +11,8 @@ public class Hook : NetworkBehaviour
 
     private ulong sender;
     private Transform senderTransform;
+
+    public event Action OnHooked;
 
     public void Server_Initialize(ulong sender, Transform senderTransform)
     {
@@ -30,10 +30,13 @@ public class Hook : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!IsServer) return;
-
         other.TryGetComponent(out NetworkObject networkObject);
         if (networkObject.OwnerClientId == sender) return;
+
+        OnHooked?.Invoke();
+
+        if (!IsServer) return;
+        if (travelTime <= 0) return;
 
         travelTime = 0;
 

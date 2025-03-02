@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -9,8 +6,19 @@ public class DefaultCube : NetworkBehaviour
     [SerializeField] private float lifeTime = 2f;
     [SerializeField] private float radius = 5f;
     [SerializeField] private GameObject explosionPrefab;
+    [SerializeField] private AudioClip hitSFX;
+    [SerializeField] private AudioClip explodeSFX;
 
+    [SerializeField] private AudioSource audioSourcePrefab;
+    [SerializeField] private AudioSource audioSource;
+
+    private ulong sender;
     private bool called = false;
+
+    internal void Server_Initialize(ulong sender)
+    {
+        this.sender = sender;
+    }
 
     private void Update()
     {
@@ -38,6 +46,8 @@ public class DefaultCube : NetworkBehaviour
         {
             if (collider.TryGetComponent(out PlayerHealthComponent healthComponent))
             {
+                if (collider.GetComponentInParent<NetworkObject>().OwnerClientId == sender) continue;
+
                 healthComponent.Server_TakeDamage(new DamageSettings()
                 {
                     damage = 20f,
@@ -60,17 +70,29 @@ public class DefaultCube : NetworkBehaviour
     [ClientRpc]
     private void ExplodeClientRpc()
     {
-        Debug.Log("hello");
+        AudioSource externalAS = Instantiate(audioSourcePrefab, transform.position, Quaternion.identity);
+        externalAS.PlayOneShot(explodeSFX);
 
+        Destroy(externalAS.gameObject, 2f);
         Destroy(Instantiate(explosionPrefab, transform.position, Quaternion.identity), 2f);
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        if (IsClient)
+        {
+            if (other.TryGetComponent(out PlayerHealthComponent healthComponent))
+            {
+                audioSource.PlayOneShot(hitSFX);
+            }
+        }
+
         if (IsServer)
         {
             if (other.TryGetComponent(out PlayerHealthComponent healthComponent))
             {
+                if (other.GetComponentInParent<NetworkObject>().OwnerClientId == sender) return;
+
                 healthComponent.Server_TakeDamage(new DamageSettings()
                 {
                     damage = 5f,

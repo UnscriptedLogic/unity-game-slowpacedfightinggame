@@ -67,6 +67,9 @@ public class DefaultCubeAbility : Ability
             NetworkObject networkObject = cube.GetComponent<NetworkObject>();
             networkObject.Spawn();
 
+            DefaultCube defaultCube = cube.GetComponent<DefaultCube>();
+            defaultCube.Server_Initialize(OwnerClientId);
+
             Rigidbody cubeRb = cube.GetComponent<Rigidbody>();
             cubeRb.isKinematic = false;
             cubeRb.AddForce(transform.forward * 10f, ForceMode.Impulse);

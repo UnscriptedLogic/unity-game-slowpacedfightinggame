@@ -38,6 +38,7 @@ public class PlayerHealthComponent : PlayerBaseComponent
     [SerializeField] private Material damageMaterial;
     [SerializeField] private HealthModifyDisplay healthModifyDisplayPrefab;
     [SerializeField] private UIC_HealthBarUI healthBarUIPrefab;
+    [SerializeField] private GameObject ragdollPrefab;
     
     private NetworkVariable<float> maxHealth = new NetworkVariable<float>(100f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<float> health = new NetworkVariable<float>(100f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -96,7 +97,7 @@ public class PlayerHealthComponent : PlayerBaseComponent
         {
             health.Value = 0;
             Debug.Log("player died");
-            PlayerDiedClientRpc();
+            PlayerDiedClientRpc(damageSettings);
             Die();
             return;
         }
@@ -106,9 +107,12 @@ public class PlayerHealthComponent : PlayerBaseComponent
     }
 
     [ClientRpc]
-    private void PlayerDiedClientRpc()
+    private void PlayerDiedClientRpc(DamageSettings damageSettings)
     {
-        Debug.Log(IsOwner);
+        GameObject ragdoll = Instantiate(ragdollPrefab, transform.position, transform.rotation);
+        ragdoll.GetComponentInChildren<Rigidbody>().AddForce(damageSettings.kbDir * (damageSettings.kbForce * 3f));
+        Destroy(ragdoll, 10f);
+
         if (!IsOwner) return;
 
         UGameModeBase.instance.GetPlayerController().UnPossessPawn();
