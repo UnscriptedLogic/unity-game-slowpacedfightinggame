@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnscriptedEngine;
@@ -8,6 +9,8 @@ public class GM_MultiplayerMode : UGameModeBase
 {
     [Header("Multiplayer Extensions")]
     [SerializeField] private NetworkManager networkManager;
+
+    [SerializeField] private List<Transform> spawnPoints;
 
     protected override void Init() { }
 
@@ -47,7 +50,9 @@ public class GM_MultiplayerMode : UGameModeBase
 
     private void ReSpawnPlayer(ulong playerId)
     {
-        ULevelPawn pawn = Instantiate(playerPawn, Vector3.zero, Quaternion.identity);
+        Transform spawnPoint = spawnPoints.GetRandomElement();
+
+        ULevelPawn pawn = Instantiate(playerPawn, spawnPoint.position, spawnPoint.rotation);
         pawn.GetComponent<NetworkObject>().SpawnWithOwnership(playerId);
 
         ClientRpcParams clientRpcParams = new ClientRpcParams
@@ -72,7 +77,8 @@ public class GM_MultiplayerMode : UGameModeBase
     [ServerRpc(RequireOwnership = false)]
     private void SpawnPlayerPawnServerRpc(ulong playerId)
     {
-        ULevelPawn pawn = Instantiate(playerPawn, Vector3.zero, Quaternion.identity);
+        Transform spawnPoint = spawnPoints.GetRandomElement();
+        ULevelPawn pawn = Instantiate(playerPawn, spawnPoint.position, spawnPoint.rotation);
         pawn.GetComponent<NetworkObject>().SpawnWithOwnership(playerId);
 
         ClientRpcParams clientRpcParams = new ClientRpcParams
