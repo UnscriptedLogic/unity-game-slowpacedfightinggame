@@ -68,4 +68,9 @@ public class PlayerAnimator : PlayerBaseComponent
     {
         networkAnimator.SetTrigger("Ability1");
     }
+
+    internal void Ability2Upper()
+    {
+        networkAnimator.SetTrigger("Ability2Upper");
+    }
 }

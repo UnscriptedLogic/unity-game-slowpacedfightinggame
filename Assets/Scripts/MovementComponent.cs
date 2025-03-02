@@ -191,8 +191,6 @@ public class MovementComponent : PlayerBaseComponent
             rb = GetComponent<Rigidbody>();
         }
 
-        if (playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return;
-
         Vector3 startPos = transform.position;
 
         if (lastData == null) return;

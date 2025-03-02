@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -47,6 +48,28 @@ public abstract class Ability : NetworkBehaviour
                 }
             }
         }
+    }
+
+    internal virtual bool CanUseAbility()
+    {
+        if (stateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return false;
+        if (cooldown.Value > 0) return false;
+        if (uses.Value <= 0) return false;
+
+        return true;
+    }
+
+    internal virtual ClientRpcParams ClientSenderParams(ServerRpcParams serverParams)
+    {
+        ClientRpcParams clientParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new List<ulong> { serverParams.Receive.SenderClientId }
+            }
+        };
+
+        return clientParams;
     }
 
     [ServerRpc(RequireOwnership = false)]

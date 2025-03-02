@@ -33,7 +33,7 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
     [SerializeField] private AbilitySet ability1Set;
     [SerializeField] private AbilitySet ability2Set;
 
-    public void Initialize(Ability meleeAbility, Ability ability2)
+    public void Initialize(Ability meleeAbility, Ability ability1, Ability ability2)
     {
         mainCameraTransform = Camera.main.transform;
 
@@ -42,23 +42,17 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
         ability2Set.SetActive(false);
 
         meleeSet.CounterTMP.text = meleeAbility.uses.Value.ToString();
+        ability1Set.CounterTMP.text = ability1.uses.Value.ToString();
         ability2Set.CounterTMP.text = ability2.uses.Value.ToString();
 
         meleeAbility.cooldown.OnValueChanged += OnMeleeCooldown;
         meleeAbility.uses.OnValueChanged += OnMeleeUses;
 
+        ability1.cooldown.OnValueChanged += OnAbility1Cooldown;
+        ability1.uses.OnValueChanged += OnAbility1Uses;
+
         ability2.cooldown.OnValueChanged += OnAbility2Cooldown;
         ability2.uses.OnValueChanged += OnAbility2Uses;
-    }
-
-    private void OnMeleeUses(int previousValue, int newValue)
-    {
-        meleeSet.CounterTMP.text = newValue.ToString();
-    }
-
-    private void OnAbility2Uses(int previousValue, int newValue)
-    {
-        ability2Set.CounterTMP.text = newValue.ToString();
     }
 
     private void OnMeleeCooldown(float previousValue, float newValue)
@@ -69,6 +63,23 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
         meleeSet.CooldownTMP.text = newValue.ToString("F1");
     }
 
+    private void OnMeleeUses(int previousValue, int newValue)
+    {
+        meleeSet.CounterTMP.text = newValue.ToString();
+    }
+
+    private void OnAbility1Cooldown(float previousValue, float newValue)
+    {
+        ability1Set.SetActive(newValue > 0f);
+        ability1Set.CooldownImg.fillAmount = newValue / 1f;
+        ability1Set.CooldownTMP.text = newValue.ToString("F1");
+    }
+
+    private void OnAbility1Uses(int previousValue, int newValue)
+    {
+        ability1Set.CounterTMP.text = newValue.ToString();
+    }
+
     private void OnAbility2Cooldown(float previousValue, float newValue)
     {
         ability2Set.SetActive(newValue > 0f);
@@ -76,14 +87,16 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
         ability2Set.CooldownTMP.text = newValue.ToString("F1");
     }
 
-    private void FixedUpdate()
+    private void OnAbility2Uses(int previousValue, int newValue)
+    {
+        ability2Set.CounterTMP.text = newValue.ToString();
+    }
+
+    private void Update()
     {
         if (mainCameraTransform != null)
         {
-            Vector3 targetDir = mainCameraTransform.forward;
-            float step = 10f * Time.fixedDeltaTime;
-            Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, step, 0.0f);
-            transform.rotation = Quaternion.LookRotation(newDir);
+            transform.forward = mainCameraTransform.forward;
         }
     }
 }

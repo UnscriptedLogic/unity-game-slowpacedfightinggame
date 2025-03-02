@@ -22,7 +22,10 @@ public class DefaultCubeAbility : Ability
     {
         if (IsServer)
         {
-            uses.Value = 2;
+            if (uses.Value == 0)
+            {
+                uses.Value = 2;
+            }
         }
     }
 

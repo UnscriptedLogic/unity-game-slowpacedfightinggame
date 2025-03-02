@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1392218338
+  GlobalObjectIdHash: 235339980
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -1074,6 +1074,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1147693555245461152}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0d43e28dbc4004a4cae1073264fc7c05,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3160517910781596245}
   m_SourcePrefab: {fileID: 100100000, guid: 0d43e28dbc4004a4cae1073264fc7c05, type: 3}
 --- !u!4 &3545325348618858951 stripped
 Transform:
@@ -1137,10 +1141,17 @@ MonoBehaviour:
   - IsCrossFadeExit: 0
     Layer: 1
     OriginatingState: 753088835
-    DestinationState: 1441808008
+    DestinationState: 1291083416
     TransitionDuration: 0
     TriggerNameHash: 1441808008
     TransitionIndex: 3
+  - IsCrossFadeExit: 0
+    Layer: 1
+    OriginatingState: 753088835
+    DestinationState: -899666890
+    TransitionDuration: 0
+    TriggerNameHash: -899666890
+    TransitionIndex: 4
   - IsCrossFadeExit: 0
     Layer: 1
     OriginatingState: 628006532
@@ -1209,7 +1220,8 @@ MonoBehaviour:
     ShiftPriority: 0
     InteractPriority: 0
   meleeAbility: {fileID: 39771864333008783}
-  ability1: {fileID: 1147693555245461152}
+  ability1: {fileID: 3160517910781596245}
+  ability2: {fileID: 1147693555245461152}
   meleeHitbox: {fileID: 3274380308064362579}
   abilityHUDPrefab: {fileID: 8955138282916284445, guid: de622d9e0d12d694f98b71972d5d4786,
     type: 3}
@@ -1328,6 +1340,26 @@ MonoBehaviour:
     type: 3}
   defaultCubePrefab: {fileID: 3824499333240254311, guid: 4950bad250faa104fbce47e567746641,
     type: 3}
+--- !u!114 &3160517910781596245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4213212226220010365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a9fc2f2afeab4249be5e0815f17f5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uses:
+    m_InternalValue: 0
+  cooldown:
+    m_InternalValue: 0
+  createOffset: {x: 0, y: 1, z: 1.5}
+  hookPrefab: {fileID: 2638882202443081225, guid: de2449495cf800340bacb189e7b02586,
+    type: 3}
+  throwAnimation: {fileID: 7400000, guid: c714a850f74aec14dab09ab55609f562, type: 2}
 --- !u!95 &7481510642489273277 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 0d43e28dbc4004a4cae1073264fc7c05,

@@ -133,17 +133,11 @@ public class UIC_HealthBarUI : UCanvasController, ICanvasController
         }
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (mainCameraTransform != null)
         {
-            //transform.forward = mainCameraTransform.forward;
-
-            //lerp rotating to face camera
-            Vector3 targetDir =mainCameraTransform.forward;
-            float step = 10f * Time.fixedDeltaTime;
-            Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, step, 0.0f);
-            transform.rotation = Quaternion.LookRotation(newDir);
+            transform.forward = mainCameraTransform.forward;
         }
     }
 }

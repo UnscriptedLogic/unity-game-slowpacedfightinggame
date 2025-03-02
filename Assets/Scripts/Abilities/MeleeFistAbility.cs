@@ -29,7 +29,6 @@ public class MeleeFistAbility : Ability
     [SerializeField] private GameObject hitLandedVFXPrefab;
 
     private CinemachineImpulseSource impulseSource;
-    private NetworkVariable<int> attackCount = new NetworkVariable<int>(2, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private List<P_PlayerPawn> alreadyHit = new List<P_PlayerPawn>();
 
@@ -68,7 +67,7 @@ public class MeleeFistAbility : Ability
             float kbDuration = 0.1f;
             float stunDuration = 1f;
 
-            if (attackCount.Value == 1)
+            if (uses.Value == 1)
             {
                 impulse = 1f;
                 force = 2000f;
@@ -76,7 +75,7 @@ public class MeleeFistAbility : Ability
                 stunDuration = 1.5f;
             }
 
-            if (attackCount.Value == 2)
+            if (uses.Value == 2)
             {
                 impulse = 1.5f;
                 force = 2500f;
@@ -137,23 +136,23 @@ public class MeleeFistAbility : Ability
 
         alreadyHit.Clear();
 
-        if (attackCount.Value == 2)
+        if (uses.Value == 2)
         {
             animatorComponent.Attack1();
             cooldown.Value = attack1.length;
         }
-        else if (attackCount.Value == 0)
+        else if (uses.Value == 0)
         {
             animatorComponent.Attack2();
             cooldown.Value = attack2.length;
         }
-        else if (attackCount.Value == 1)
+        else if (uses.Value == 1)
         {
             animatorComponent.Attack3();
             cooldown.Value = attack3.length;
         }
 
-        attackCount.Value = (attackCount.Value + 1) % 3;
+        uses.Value = (uses.Value + 1) % 3;
 
         UseAbilityClientRpc(clientParams);
     }
