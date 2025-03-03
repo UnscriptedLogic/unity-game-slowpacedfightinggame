@@ -30,21 +30,30 @@ public class P_DefaultPlayerPawn : P_PlayerPawn
 
     protected override void Update()
     {
-        if (!IsOwner || IsServer) return;
+        if (!IsHost)
+        {
+            if (!IsOwner || IsServer) return;
+        }
 
         base.Update();
     }
 
     protected override void FixedUpdate()
     {
-        if (!IsOwner || IsServer) return;
+        if (!IsHost)
+        {
+            if (!IsOwner || IsServer) return;
+        }
 
         base.FixedUpdate();
     }
 
     public override void OnUnPossess(UController uController)
     {
-        if (!IsOwner || IsServer) return;
+        if (!IsHost)
+        {
+            if (!IsOwner || IsServer) return;
+        }
 
         DeInitializeComponents(this);
 
@@ -53,7 +62,10 @@ public class P_DefaultPlayerPawn : P_PlayerPawn
 
     public override void OnNetworkDespawn()
     {
-        if (!IsOwner || IsServer) return;
+        if (!IsHost)
+        {
+            if (!IsOwner || IsServer) return;
+        }
 
         DeInitializeComponents(this);
 

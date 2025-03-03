@@ -161,6 +161,8 @@ public class MovementComponent : PlayerBaseComponent
                 walkIntervalTimer -= Time.fixedDeltaTime;
             }
 
+            if (IsHost) continue;
+
             clientMovementData[currentTick % BUFFER_SIZE] = new ServerMovementData
             {
                 tick = currentTick,
