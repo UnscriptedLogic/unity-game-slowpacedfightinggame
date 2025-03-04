@@ -17,13 +17,20 @@ public abstract class Ability : NetworkBehaviour
     public event Action<Ability> OnStarted;
     public event Action<Ability> OnFinished;
 
+    public Transform PlayerRoot => transform.parent.parent;
+    public Transform GFXRoot => transform.parent;
+
     protected virtual void Start()
     {
-        stateComponent = transform.parent.GetComponent<PlayerStateComponent>();
-        audioComponent = transform.parent.GetComponent<PlayerAudioComponent>();
-        animatorComponent = transform.GetComponent<PlayerAnimator>();
-        attackComponent = GetComponent<PlayerAttackComponent>();
+        stateComponent = PlayerRoot.GetComponent<PlayerStateComponent>();
+        audioComponent = PlayerRoot.GetComponent<PlayerAudioComponent>();
+        animatorComponent = transform.parent.GetComponent<PlayerAnimator>();
+        attackComponent = transform.parent.GetComponent<PlayerAttackComponent>();
+
+        attackComponent.OnAbilityApexed += OnAbilityApexed;
     }
+
+    protected virtual void OnAbilityApexed(Ability ability) { }
 
     public virtual void Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
     {

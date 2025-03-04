@@ -7,6 +7,7 @@ public class HookAbility : Ability
     [SerializeField] private Vector3 createOffset = new Vector3(0f, 1f, 1.5f);
     [SerializeField] private Hook hookPrefab;
     [SerializeField] private AnimationClip throwAnimation;
+    [SerializeField] private float castDelay;
 
     private ClientRpcParams clientRpcParams;
 
@@ -35,24 +36,26 @@ public class HookAbility : Ability
 
         clientRpcParams = ClientSenderParams(serverParams);
 
+        UseAbilityClientRpc(clientRpcParams);
+        
         animatorComponent.Ability2Upper();
         uses.Value--;
 
-        cooldown.Value = 1f;
+        Invoke(nameof(Server_ThrowHook), castDelay);
 
-        UseAbilityClientRpc(clientRpcParams);
+        cooldown.Value = 1f;
     }
 
-    internal void ThrowHook()
+    internal void Server_ThrowHook()
     {
         if (!IsServer) return;
 
-        GameObject hookObject = Instantiate(hookPrefab.gameObject, transform.position + (transform.rotation * createOffset), transform.rotation);
+        GameObject hookObject = Instantiate(hookPrefab.gameObject, GFXRoot.position + (GFXRoot.rotation * createOffset), GFXRoot.rotation);
         NetworkObject networkObject = hookObject.GetComponent<NetworkObject>();
         networkObject.Spawn();
 
         Hook hook = hookObject.GetComponent<Hook>();
-        hook.Server_Initialize(OwnerClientId, transform.parent);
+        hook.Server_Initialize(OwnerClientId, PlayerRoot);
 
         HookThrownClientRpc(networkObject);
     }
@@ -69,7 +72,7 @@ public class HookAbility : Ability
         if (hookReference.TryGet(out NetworkObject hookNO))
         {
             Hook hook = hookNO.GetComponent<Hook>();
-            hook.Client_Initialize(transform.parent);
+            hook.Client_Initialize(PlayerRoot);
         }
     }
 

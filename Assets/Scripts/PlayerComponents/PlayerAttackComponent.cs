@@ -29,6 +29,8 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
     public TriggerHandler MeleeHitbox => meleeHitbox;
 
+    public event Action<Ability> OnAbilityApexed;
+
     public override void Initialize(P_PlayerPawn context)
     {
         base.Initialize(context);
@@ -44,6 +46,11 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
         context.GetDefaultInputMap().FindAction("Ability1").performed += OnAbility1;
         context.GetDefaultInputMap().FindAction("Ability2").performed += OnAbility2;
+    }
+
+    public void AnimationApex()
+    {
+        OnAbilityApexed?.Invoke(currentAbility);
     }
 
     private void OnAbility2(InputAction.CallbackContext context)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
@@ -40,6 +41,30 @@ public class MeleeFistAbility : Ability
         {
             attackComponent.MeleeHitbox.TriggerEnter += OnHitboxTriggerEnter;
             impulseSource = attackComponent.GetComponent<CinemachineImpulseSource>();
+        }
+
+        if (IsClient)
+        {
+            attackComponent.OnAbilityApexed += OnAbilityApexed;
+        }
+    }
+
+    protected override void OnAbilityApexed(Ability ability)
+    {
+        if (ability == this)
+        {
+            if (uses.Value == 0)
+            {
+                PlayVFX1();
+            }
+            else if (uses.Value == 1)
+            {
+                PlayVFX2();
+            }
+            else if (uses.Value == 2)
+            {
+                PlayVFX3();
+            }
         }
     }
 
@@ -91,7 +116,7 @@ public class MeleeFistAbility : Ability
                 target.GetPlayerComponent<PlayerHealthComponent>().Server_TakeDamage(new DamageSettings()
                 {
                     damage = damage,
-                    kbDir = (target.transform.position - transform.position).normalized,
+                    kbDir = (target.transform.position - PlayerRoot.position).normalized,
                     kbForce = force,
                     kbDuration = kbDuration,
                 });
@@ -180,9 +205,9 @@ public class MeleeFistAbility : Ability
         yield return new WaitForSeconds(settings.delay);
 
         //position is relative to the forward direction of the player
-        Vector3 pos = transform.position + (transform.rotation * settings.position);
+        Vector3 pos = transform.parent.position + (transform.parent.rotation * settings.position);
 
-        GameObject vfx = Instantiate(settings.vfx, pos, transform.rotation * Quaternion.Euler(settings.rotation));
+        GameObject vfx = Instantiate(settings.vfx, pos, transform.parent.rotation * Quaternion.Euler(settings.rotation));
         Destroy(vfx, settings.cleanUpTimer);
     }
 }

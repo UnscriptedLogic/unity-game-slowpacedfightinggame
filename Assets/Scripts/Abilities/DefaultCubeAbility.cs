@@ -7,6 +7,7 @@ public class DefaultCubeAbility : Ability
     [SerializeField] private Vector3 createOffset = new Vector3(0f, 1f, 1.5f);
     [SerializeField] private AnimationClip throwAnimation;
     [SerializeField] private DefaultCube defaultCubePrefab;
+    [SerializeField] private float castDelay;
 
     protected override void Start()
     {
@@ -45,6 +46,9 @@ public class DefaultCubeAbility : Ability
         };
 
         animatorComponent.Ability1();
+
+        Invoke(nameof(ThrowCube), castDelay);
+
         uses.Value--;
 
         if (uses.Value > 0)
