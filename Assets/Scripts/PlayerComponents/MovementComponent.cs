@@ -55,6 +55,8 @@ public class MovementComponent : PlayerBaseComponent
     private const int BUFFER_SIZE = 1024;
     private ServerMovementData[] clientMovementData = new ServerMovementData[BUFFER_SIZE];
 
+    private bool inputToggled = true;
+
     private void Awake()
     {
         tickTime = 1f / TICKS_PER_SECOND;
@@ -85,10 +87,19 @@ public class MovementComponent : PlayerBaseComponent
         context.GetDefaultInputMap().FindAction("MouseDelta").performed += OnMouseDelta;
 
         initialized = true;
+
+        MonoBehaviourExtensions.OnToggleInput += OnToggleInput;
+    }
+
+    private void OnToggleInput(bool obj)
+    {
+        inputToggled = obj;
     }
 
     private void OnMouseDelta(InputAction.CallbackContext context)
     {
+        if (!inputToggled) return;
+
         Vector2 mouseDelta = context.ReadValue<Vector2>();
 
         transform.Rotate(Vector3.up, mouseDelta.x * cameraSens * Time.deltaTime);
@@ -110,6 +121,8 @@ public class MovementComponent : PlayerBaseComponent
     public override void UpdateTick(out bool swallowTick)
     {
         swallowTick = false;
+
+        if (!inputToggled) return;
 
         unitSpeed = Vector3.Distance(prevPosition, transform.position) / Time.deltaTime;
 
@@ -136,6 +149,8 @@ public class MovementComponent : PlayerBaseComponent
     public override void FixedUpdateTick(out bool swallowTick)
     {
         swallowTick = false;
+
+        if (!inputToggled) return;
 
         while (time > tickTime)
         {
@@ -253,6 +268,8 @@ public class MovementComponent : PlayerBaseComponent
 
     public void Jump()
     {
+        if (!inputToggled) return;
+
         if (!movementSettings.CanJump && isGrounded)
         {
             movementSettings.ResetJumpCounter();

@@ -105,24 +105,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Build",
-                    "type": "Button",
-                    "id": "08cbbc42-aa63-467b-87ad-14975fc95910",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Delete",
-                    "type": "Button",
-                    "id": "33f9d398-91f4-4298-9714-543c0f051559",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "B",
                     "type": "Button",
                     "id": "7cb14918-b00b-4c57-a63e-162b4b9b39e1",
@@ -150,15 +132,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Configure",
-                    "type": "Button",
-                    "id": "3eb6e169-ca97-43d2-a757-f5c37323b152",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Ability1",
                     "type": "Button",
                     "id": "56b1b1e2-97ad-4507-91e5-73c7a5e2bd2a",
@@ -171,6 +144,15 @@
                     "name": "Ability2",
                     "type": "Button",
                     "id": "b8fc6904-1389-4cf6-82c8-d7c15f87f9a0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "AbilityMenu",
+                    "type": "Button",
+                    "id": "e80f6c41-09ff-4060-bf1d-82cb9a6ac9d8",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -356,28 +338,6 @@
                 },
                 {
                     "name": "",
-                    "id": "97ba14fc-19e4-40c3-b50a-b64e2e0551f3",
-                    "path": "<Keyboard>/tab",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Build",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "de1a075e-8993-4e7d-979f-63943d5736ad",
-                    "path": "<Keyboard>/x",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Delete",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "cc059adb-5ec0-46f4-ba61-9bf57e9f001c",
                     "path": "<Keyboard>/b",
                     "interactions": "",
@@ -411,17 +371,6 @@
                 },
                 {
                     "name": "",
-                    "id": "a6b1ea4c-3a99-4c54-8efc-825a8dc6cbc2",
-                    "path": "<Keyboard>/f",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Configure",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "85b05007-d51e-445e-b4c5-9f6eb063c41b",
                     "path": "<Keyboard>/1",
                     "interactions": "",
@@ -439,6 +388,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Ability2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "41f94168-08da-4575-97cf-114fa49e59c5",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AbilityMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

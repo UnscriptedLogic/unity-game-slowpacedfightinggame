@@ -26,6 +26,7 @@ public class PlayerAttackComponent : PlayerBaseComponent
     private States currentState;
 
     private UIC_AbilityHUD abilityHUD;
+    private bool toggledInput = true;
 
     public TriggerHandler MeleeHitbox => meleeHitbox;
 
@@ -46,6 +47,13 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
         context.GetDefaultInputMap().FindAction("Ability1").performed += OnAbility1;
         context.GetDefaultInputMap().FindAction("Ability2").performed += OnAbility2;
+
+        MonoBehaviourExtensions.OnToggleInput += OnToggleInput;
+    }
+
+    private void OnToggleInput(bool obj)
+    {
+        toggledInput = obj;
     }
 
     public void AnimationApex()
@@ -81,6 +89,8 @@ public class PlayerAttackComponent : PlayerBaseComponent
                     SenderClientId = OwnerClientId
                 }
             };
+
+            if (!toggledInput) return;
 
             RequestUseAbilityServerRpc(abilityIndex, serverParams);
         }

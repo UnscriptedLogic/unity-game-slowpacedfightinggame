@@ -3,14 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnscriptedEngine;
 
 public class GM_MultiplayerMode : UGameModeBase
 {
     [Header("Multiplayer Extensions")]
     [SerializeField] private NetworkManager networkManager;
-
     [SerializeField] private List<Transform> spawnPoints;
+
+    [SerializeField] private UIC_AbilityLoadout abilityLoadoutPrefab;
+    private UIC_AbilityLoadout _abilityLoadout;
 
     protected override void Init() { }
 
@@ -20,7 +23,23 @@ public class GM_MultiplayerMode : UGameModeBase
 
         yield return base.Start();
 
+        InputContext.FindAction("AbilityMenu").canceled += ShowAbilityMenu;
+
         networkManager.OnClientConnectedCallback += OnClientConnected;
+    }
+
+    private void ShowAbilityMenu(InputAction.CallbackContext context)
+    {
+        if (_playerPawn == null) return;
+        if (_abilityLoadout == null)
+        {
+            _abilityLoadout = _playerPawn.AttachUIWidget(abilityLoadoutPrefab);
+        }
+        else
+        {
+            _playerPawn.DettachUIWidget(_abilityLoadout);
+            _abilityLoadout = null;
+        }
     }
 
     private void OnPlayerDied(ulong playerId)
