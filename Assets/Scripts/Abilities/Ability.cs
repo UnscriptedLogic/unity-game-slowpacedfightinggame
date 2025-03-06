@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnscriptedEngine;
 
 public abstract class Ability : NetworkBehaviour
 {
+    [SerializeField] private string abilityName;
+
     protected P_PlayerPawn context;
     protected PlayerAttackComponent attackComponent;
     protected PlayerStateComponent stateComponent;
@@ -17,15 +20,44 @@ public abstract class Ability : NetworkBehaviour
     public event Action<Ability> OnStarted;
     public event Action<Ability> OnFinished;
 
-    public Transform PlayerRoot => transform.parent.parent;
-    public Transform GFXRoot => transform.parent;
+    public string AbilityName => abilityName;
+
+    private Transform playerRoot;
+
+    public Transform PlayerRoot
+    {
+        get
+        {
+            if (playerRoot == null)
+            {
+                if (IsServer)
+                {
+                    C_PlayerController controller = NetworkManager.ConnectedClients[OwnerClientId].PlayerObject.GetComponent<C_PlayerController>();
+                    playerRoot = controller.GetPossessedPawn<P_DefaultPlayerPawn>().transform;
+                }
+
+                if (IsClient)
+                {
+                    playerRoot = UGameModeBase.instance.GetPlayerPawn().transform;
+                }
+            }
+
+            return playerRoot;
+        }
+    }
 
     protected virtual void Start()
     {
+        if (IsClient)
+        {
+            if (!IsOwner) return;
+        }
+
+        context = PlayerRoot.GetComponent<P_PlayerPawn>();
         stateComponent = PlayerRoot.GetComponent<PlayerStateComponent>();
         audioComponent = PlayerRoot.GetComponent<PlayerAudioComponent>();
-        animatorComponent = transform.parent.GetComponent<PlayerAnimator>();
-        attackComponent = transform.parent.GetComponent<PlayerAttackComponent>();
+        animatorComponent = PlayerRoot.GetComponentInChildren<PlayerAnimator>();
+        attackComponent = PlayerRoot.GetComponentInChildren<PlayerAttackComponent>();
 
         attackComponent.OnAbilityApexed += OnAbilityApexed;
     }

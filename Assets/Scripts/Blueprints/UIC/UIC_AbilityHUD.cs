@@ -9,12 +9,12 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
     [System.Serializable]
     public class AbilitySet
     {
-        [SerializeField] private RectTransform abilityIcon;
+        [SerializeField] private Image abilityIcon;
         [SerializeField] private Image cooldownImg;
         [SerializeField] private TextMeshProUGUI cooldownTMP;
         [SerializeField] private TextMeshProUGUI counterTMP;
 
-        public RectTransform AbilityIcon => abilityIcon;
+        public Image AbilityIcon => abilityIcon;
         public Image CooldownImg => cooldownImg;
         public TextMeshProUGUI CooldownTMP => cooldownTMP;
         public TextMeshProUGUI CounterTMP => counterTMP;
@@ -33,13 +33,29 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
     [SerializeField] private AbilitySet ability1Set;
     [SerializeField] private AbilitySet ability2Set;
 
+    private CustomGameInstance customGameInstance;
+
+    public void ReInitialize(Ability meleeAbility, Ability ability1, Ability ability2)
+    {
+        DeInitialize();
+        Initialize(meleeAbility, ability1, ability2);
+    }
+
     public void Initialize(Ability meleeAbility, Ability ability1, Ability ability2)
     {
+        customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
+
         mainCameraTransform = Camera.main.transform;
 
         meleeSet.SetActive(false);
         ability1Set.SetActive(false);
         ability2Set.SetActive(false);
+
+        Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability1).AbilityName);
+        Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability2).AbilityName);
+
+        ability1Set.AbilityIcon.sprite = customGameInstance.AbilityMap.GetAbilitySO(ability1).Icon;
+        ability2Set.AbilityIcon.sprite = customGameInstance.AbilityMap.GetAbilitySO(ability2).Icon;
 
         meleeSet.CounterTMP.text = meleeAbility.uses.Value.ToString();
         ability1Set.CounterTMP.text = ability1.uses.Value.ToString();
@@ -53,6 +69,21 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
 
         ability2.cooldown.OnValueChanged += OnAbility2Cooldown;
         ability2.uses.OnValueChanged += OnAbility2Uses;
+    }
+
+    public void DeInitialize()
+    {
+        meleeSet.CooldownImg.fillAmount = 0f;
+        meleeSet.CooldownTMP.text = "0.0";
+        meleeSet.CounterTMP.text = "0";
+
+        ability1Set.CooldownImg.fillAmount = 0f;
+        ability1Set.CooldownTMP.text = "0.0";
+        ability1Set.CounterTMP.text = "0";
+
+        ability2Set.CooldownImg.fillAmount = 0f;
+        ability2Set.CooldownTMP.text = "0.0";
+        ability2Set.CounterTMP.text = "0";
     }
 
     private void OnMeleeCooldown(float previousValue, float newValue)

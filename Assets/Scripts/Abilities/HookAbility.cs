@@ -50,7 +50,7 @@ public class HookAbility : Ability
     {
         if (!IsServer) return;
 
-        GameObject hookObject = Instantiate(hookPrefab.gameObject, GFXRoot.position + (GFXRoot.rotation * createOffset), GFXRoot.rotation);
+        GameObject hookObject = Instantiate(hookPrefab.gameObject, PlayerRoot.position + (PlayerRoot.rotation * createOffset), PlayerRoot.rotation);
         NetworkObject networkObject = hookObject.GetComponent<NetworkObject>();
         networkObject.Spawn();
 

@@ -9,10 +9,14 @@ public class UIC_AbilityLoadout : UCanvasController
     [SerializeField] private AbilityButton abilityButtonPrefab;
     [SerializeField] private Transform contentParent;
 
+    [SerializeField] private DragAndDropSlot ability1Slot;
+    [SerializeField] private DragAndDropSlot ability2Slot;
+
     [Header("Overrides")]
     [SerializeField] private AbilityGroupSO overrideAbilityDisplayGroup;
     
     private AbilityGroupSO abilityGroup;
+    private CustomGameInstance gameInstance;
 
     public override void OnWidgetAttached(ILevelObject context)
     {
@@ -20,6 +24,8 @@ public class UIC_AbilityLoadout : UCanvasController
 
         this.ToggleMouse(true);
         this.ToggleInput(false);
+
+        gameInstance = GameMode.GetGameInstance<CustomGameInstance>();
 
         if (overrideAbilityDisplayGroup != null)
             abilityGroup = overrideAbilityDisplayGroup;
@@ -44,6 +50,8 @@ public class UIC_AbilityLoadout : UCanvasController
     {
         this.ToggleInput(true);
         this.ToggleMouse(false);
+
+        gameInstance.SetAbilities(ability1Slot.AbilitySO, ability2Slot.AbilitySO);
 
         base.OnWidgetDetached(context);
     }

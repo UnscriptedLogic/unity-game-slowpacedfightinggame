@@ -67,7 +67,7 @@ public class DefaultCubeAbility : Ability
     {
         if (IsServer)
         {
-            GameObject cube = Instantiate(defaultCubePrefab.gameObject, transform.position + (transform.rotation * createOffset), transform.rotation);
+            GameObject cube = Instantiate(defaultCubePrefab.gameObject, PlayerRoot.position + (PlayerRoot.rotation * createOffset), PlayerRoot.rotation);
             NetworkObject networkObject = cube.GetComponent<NetworkObject>();
             networkObject.Spawn();
 
@@ -76,7 +76,7 @@ public class DefaultCubeAbility : Ability
 
             Rigidbody cubeRb = cube.GetComponent<Rigidbody>();
             cubeRb.isKinematic = false;
-            cubeRb.AddForce(transform.forward * 10f, ForceMode.Impulse);
+            cubeRb.AddForce(PlayerRoot.forward * 10f, ForceMode.Impulse);
         }
     }
 
@@ -84,13 +84,5 @@ public class DefaultCubeAbility : Ability
     private void UseAbilityClientRpc(ClientRpcParams clientParams)
     {
         StartAbility(this);
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-
-        Vector3 pos = transform.position + (transform.rotation * createOffset);
-        Gizmos.DrawWireSphere(pos, 0.5f);
     }
 }

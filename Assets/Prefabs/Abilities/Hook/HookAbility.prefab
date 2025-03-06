@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1927078486430839741
+--- !u!1 &8002831410328303605
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 568867271991065991}
-  - component: {fileID: 9211031099790704551}
-  - component: {fileID: 143354929164233329}
+  - component: {fileID: 2858450523291810165}
+  - component: {fileID: 208068886965430579}
+  - component: {fileID: 3440084195852161547}
   m_Layer: 0
-  m_Name: GameInstance
+  m_Name: HookAbility
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &568867271991065991
+--- !u!4 &2858450523291810165
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1927078486430839741}
+  m_GameObject: {fileID: 8002831410328303605}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -33,19 +33,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &9211031099790704551
+--- !u!114 &208068886965430579
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1927078486430839741}
+  m_GameObject: {fileID: 8002831410328303605}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4200674894
+  GlobalObjectIdHash: 2651439812
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -53,19 +53,25 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &143354929164233329
+--- !u!114 &3440084195852161547
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1927078486430839741}
+  m_GameObject: {fileID: 8002831410328303605}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53dc81ac72a5aad4f8558150d8d58980, type: 3}
+  m_Script: {fileID: 11500000, guid: 1a9fc2f2afeab4249be5e0815f17f5f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ability1: {fileID: 11400000, guid: 3137d8d0fabc53a4cb5b34f03f5d3cb7, type: 2}
-  ability2: {fileID: 11400000, guid: 7ab392be64ec1ea46845163a859595c0, type: 2}
-  allAbilityGroup: {fileID: 11400000, guid: 9be947c52ee43eb4882992c3ada89c0b, type: 2}
-  abilityMapSO: {fileID: 11400000, guid: 6f9f6f57f24141e429daa1ddf0f45f6a, type: 2}
+  abilityName: Claw Hook
+  uses:
+    m_InternalValue: 0
+  cooldown:
+    m_InternalValue: 0
+  createOffset: {x: 0, y: 0, z: 1.5}
+  hookPrefab: {fileID: 2638882202443081225, guid: de2449495cf800340bacb189e7b02586,
+    type: 3}
+  throwAnimation: {fileID: 7400000, guid: c714a850f74aec14dab09ab55609f562, type: 2}
+  castDelay: 0

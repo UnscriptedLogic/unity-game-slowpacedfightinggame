@@ -1,3 +1,5 @@
+using System;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,13 +12,38 @@ public class DragAndDropAbility : MonoBehaviour, IBeginDragHandler, IDragHandler
     private AbilitySO abilitySO;
     private Vector3 originalPos;
 
+    private Transform homeParent;
+    private Vector3 homePos;
+
     public AbilitySO AbilitySO => abilitySO;
 
+    public static event Action<bool> OnDragEvent;
+
+    private void Start()
+    {
+        homePos = transform.localPosition;
+        homeParent = transform.parent;
+
+        OnDragEvent += DragEvent;
+    }
+
+    public void SetToHome()
+    {
+        transform.SetParent(homeParent);
+        transform.localPosition = homePos;
+    }
+
+    private void DragEvent(bool value)
+    {
+        canvasGroup.blocksRaycasts = !value;
+    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
         canvasGroup.blocksRaycasts = false;
         originalPos = transform.localPosition;
+
+        OnDragEvent?.Invoke(true);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -27,7 +54,9 @@ public class DragAndDropAbility : MonoBehaviour, IBeginDragHandler, IDragHandler
     public void OnEndDrag(PointerEventData eventData)
     {
         canvasGroup.blocksRaycasts = true;
-        transform.localPosition = originalPos;
+        transform.localPosition = Vector3.zero;
+
+        OnDragEvent?.Invoke(false);
     }
 
     public void SetAbility(AbilitySO abilitySO)

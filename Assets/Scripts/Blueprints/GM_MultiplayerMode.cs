@@ -100,6 +100,8 @@ public class GM_MultiplayerMode : UGameModeBase
         ULevelPawn pawn = Instantiate(playerPawn, spawnPoint.position, spawnPoint.rotation);
         pawn.GetComponent<NetworkObject>().SpawnWithOwnership(playerId);
 
+        NetworkManager.ConnectedClients[playerId].PlayerObject.GetComponent<UController>().PossessPawn(pawn, true);
+
         ClientRpcParams clientRpcParams = new ClientRpcParams
         {
             Send = new ClientRpcSendParams

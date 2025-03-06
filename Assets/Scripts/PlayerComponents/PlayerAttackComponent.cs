@@ -2,9 +2,22 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnscriptedEngine;
 
 public class PlayerAttackComponent : PlayerBaseComponent
 {
+    public class SyncAbilitiesParams : INetworkSerializable
+    {
+        public NetworkObjectReference ability1;
+        public NetworkObjectReference ability2;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref ability1);
+            serializer.SerializeValue(ref ability2);
+        }
+    }
+
     public enum States
     {
         Idle,
@@ -30,25 +43,95 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
     public TriggerHandler MeleeHitbox => meleeHitbox;
 
+    private CustomGameInstance customGameInstance;
+
     public event Action<Ability> OnAbilityApexed;
+
+    private void Start()
+    {
+        customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
+    }
 
     public override void Initialize(P_PlayerPawn context)
     {
         base.Initialize(context);
 
+        SyncAbilitiesServerRpc(new ServerRpcParams()
+        {
+            Receive = new ServerRpcReceiveParams()
+            {
+                SenderClientId = OwnerClientId
+            }
+        });
+
         playerStateComponent = GetComponent<PlayerStateComponent>();
-
-        meleeAbility.Initialize(context, this);
-        meleeAbility.OnStarted += OnAbilityStarted;
-        meleeAbility.OnFinished += OnAbilityFinished;
-
-        abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
-        abilityHUD.Initialize(meleeAbility, ability1, ability2);
 
         context.GetDefaultInputMap().FindAction("Ability1").performed += OnAbility1;
         context.GetDefaultInputMap().FindAction("Ability2").performed += OnAbility2;
 
         MonoBehaviourExtensions.OnToggleInput += OnToggleInput;
+    }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SyncAbilitiesServerRpc(ServerRpcParams serverParams)
+    {
+        ability1 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.Ability1));
+        NetworkObject ability1NO = ability1.GetComponent<NetworkObject>();
+        ability1NO.SpawnWithOwnership(serverParams.Receive.SenderClientId);
+
+        ability2 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.Ability2));
+        NetworkObject ability2NO = ability2.GetComponent<NetworkObject>();
+        ability2NO.SpawnWithOwnership(serverParams.Receive.SenderClientId);
+
+        ClientRpcParams clientParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new[] { serverParams.Receive.SenderClientId }
+            }
+        };
+
+        SyncAbilitiesClientRpc(new SyncAbilitiesParams
+        {
+            ability1 = ability1.GetComponent<NetworkObject>(),
+            ability2 = ability2.GetComponent<NetworkObject>()
+        }, clientParams);
+    }
+
+
+    [ClientRpc]
+    private void SyncAbilitiesClientRpc(SyncAbilitiesParams syncParams, ClientRpcParams clientParams)
+    {
+        syncParams.ability1.TryGet(out NetworkObject ability1NO);
+        syncParams.ability2.TryGet(out NetworkObject ability2NO);
+
+        ability1 = ability1NO.GetComponent<Ability>();
+        ability2 = ability2NO.GetComponent<Ability>();
+
+        meleeAbility.Initialize(context, this);
+        meleeAbility.OnStarted += OnAbilityStarted;
+        meleeAbility.OnFinished += OnAbilityFinished;
+
+        Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability1).AbilityName);
+        Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability2).AbilityName);
+
+        abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
+        abilityHUD.Initialize(meleeAbility, ability1, ability2);
+
+        customGameInstance.OnAbilitiesChanged += OnAbilitiesChanged;
+    }
+
+    private void OnAbilitiesChanged(AbilitySO ability1, AbilitySO ability2)
+    {
+        Destroy(ability1);
+        Destroy(ability2);
+
+        this.ability1 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(ability1), transform);
+        this.ability2 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(ability2), transform);
+        abilityHUD.ReInitialize(meleeAbility, this.ability1, this.ability2);
+
+        Debug.Log("Abilities ReInitialized");
     }
 
     private void OnToggleInput(bool obj)
@@ -173,6 +256,17 @@ public class PlayerAttackComponent : PlayerBaseComponent
     {
         currentAbility = null;
         currentState = States.Idle;
+    }
+
+    public override void OnDestroy()
+    {
+        if (IsServer)
+        {
+            ability1.GetComponent<NetworkObject>().Despawn(true);
+            ability2.GetComponent<NetworkObject>().Despawn(true);
+        }
+
+        base.OnDestroy();
     }
 
     public override void DeInitialize(P_PlayerPawn context)

@@ -198,7 +198,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &6708976218379700372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,17 +231,17 @@ MonoBehaviour:
   theme: {fileID: 11400000, guid: 76468dfa929e81b47bc071460a098e62, type: 2}
   followLerp: 9
   meleeSet:
-    abilityIcon: {fileID: 679562941280263979}
+    abilityIcon: {fileID: 313848317351864838}
     cooldownImg: {fileID: 1067795991681845192}
     cooldownTMP: {fileID: 8199536332792847747}
     counterTMP: {fileID: 2838582144791392104}
   ability1Set:
-    abilityIcon: {fileID: 6372248728675939528}
+    abilityIcon: {fileID: 7108056487693505695}
     cooldownImg: {fileID: 7985281078919299824}
     cooldownTMP: {fileID: 5912486588671825240}
     counterTMP: {fileID: 2055821125304127826}
   ability2Set:
-    abilityIcon: {fileID: 5486425147338017014}
+    abilityIcon: {fileID: 1381575956275801960}
     cooldownImg: {fileID: 1579136870176051045}
     cooldownTMP: {fileID: 504395487131645827}
     counterTMP: {fileID: 3216581300738037156}
@@ -562,7 +562,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3df65e1b5a5990345a60f26a546e1334, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1252,7 +1252,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 274c93aa7801f5c458fa00244425292d, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
