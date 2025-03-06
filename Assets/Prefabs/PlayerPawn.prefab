@@ -667,80 +667,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8617104441767354390}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &8838278081709162960
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4904275934604806738}
-  - component: {fileID: 7158870714245976201}
-  m_Layer: 3
-  m_Name: MeleeFistAbility
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4904275934604806738
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8838278081709162960}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3545325348618858951}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7158870714245976201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8838278081709162960}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04af825444defc245857627ff05574e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uses:
-    m_InternalValue: 0
-  cooldown:
-    m_InternalValue: 0
-  attack1: {fileID: 7400000, guid: 5a10923afd08e2649be4c80192a8ee6f, type: 2}
-  attack2: {fileID: 7400000, guid: 874fcd9ad066f55408ee53ca1280aa1c, type: 2}
-  attack3: {fileID: 7400000, guid: e78e092f7f1c52a41bbff27e39bd016e, type: 2}
-  hitSFXes:
-  - {fileID: 8300000, guid: 4311718c8ea36eb47823edd6b6134c93, type: 3}
-  - {fileID: 8300000, guid: 3b26671352272b143854dd1f555e3201, type: 3}
-  attack1VFX:
-    vfx: {fileID: 5826393286164639083, guid: 1e25916eae9eb194184e6a4b4bb25737, type: 3}
-    position: {x: 0.085, y: 1.078, z: 1.281}
-    rotation: {x: 0.00000042688683, y: 284.99997, z: 356.10117}
-    delay: 0
-    cleanUpTimer: 1
-  attack2VFX:
-    vfx: {fileID: 5826393286164639083, guid: 622b4347ff2166349b99d04a5db7690d, type: 3}
-    position: {x: 0.581, y: 1.196, z: 1.15}
-    rotation: {x: 41.79757, y: 265.80875, z: 352.8608}
-    delay: 0
-    cleanUpTimer: 1
-  attack3VFX:
-    vfx: {fileID: 5826393286164639083, guid: 784685db8941a9e489e2c3d3bae0ec13, type: 3}
-    position: {x: 0.251, y: 1.087, z: 1.143}
-    rotation: {x: 32.05496, y: 277.99222, z: 356.67044}
-    delay: 0
-    cleanUpTimer: 1
-  hitLandedVFXPrefab: {fileID: 3278228163150772985, guid: 6f485f5c150c58541910563a9b7b68d4,
-    type: 3}
 --- !u!1001 &3943253195599386156
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1141,10 +1067,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 6801426444943220814}
-    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0d43e28dbc4004a4cae1073264fc7c05,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4904275934604806738}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0d43e28dbc4004a4cae1073264fc7c05,
         type: 3}
@@ -1303,7 +1225,7 @@ MonoBehaviour:
     SpacePriority: 0
     ShiftPriority: 0
     InteractPriority: 0
-  meleeAbility: {fileID: 7158870714245976201}
+  meleeAbility: {fileID: 0}
   ability1: {fileID: 0}
   ability2: {fileID: 0}
   meleeHitbox: {fileID: 3274380308064362579}

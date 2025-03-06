@@ -9,9 +9,9 @@ public class DefaultCubeAbility : Ability
     [SerializeField] private DefaultCube defaultCubePrefab;
     [SerializeField] private float castDelay;
 
-    protected override void Start()
+    internal override void Server_Initialize(P_DefaultPlayerPawn context)
     {
-        base.Start();
+        base.Server_Initialize(context);
 
         if (IsServer)
         {

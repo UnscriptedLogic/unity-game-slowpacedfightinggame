@@ -8,11 +8,13 @@ public class PlayerAttackComponent : PlayerBaseComponent
 {
     public class SyncAbilitiesParams : INetworkSerializable
     {
+        public NetworkObjectReference melee;
         public NetworkObjectReference ability1;
         public NetworkObjectReference ability2;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
+            serializer.SerializeValue(ref melee);
             serializer.SerializeValue(ref ability1);
             serializer.SerializeValue(ref ability2);
         }
@@ -58,10 +60,8 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
         customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
 
-        Debug.Log(customGameInstance);
-        Debug.Log(customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability1));
-
         SyncAbilitiesServerRpc(
+            customGameInstance.AllMelee.GetIndexByAbility(customGameInstance.Melee),
             customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability1), 
             customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability2), 
             new ServerRpcParams()
@@ -82,8 +82,15 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
 
     [ServerRpc(RequireOwnership = false)]
-    private void SyncAbilitiesServerRpc(int ability1Index, int ability2Index, ServerRpcParams serverParams)
+    private void SyncAbilitiesServerRpc(int meleeIndex, int ability1Index, int ability2Index, ServerRpcParams serverParams)
     {
+        P_DefaultPlayerPawn context = NetworkManager.ConnectedClients[serverParams.Receive.SenderClientId].PlayerObject.GetComponent<C_PlayerController>().GetPossessedPawn<P_DefaultPlayerPawn>();
+
+        if (meleeAbility != null)
+        {
+            meleeAbility.GetComponent<NetworkObject>().Despawn(true);
+        }
+
         if (ability1 != null)
         {
             ability1.GetComponent<NetworkObject>().Despawn(true);
@@ -94,13 +101,20 @@ public class PlayerAttackComponent : PlayerBaseComponent
             ability2.GetComponent<NetworkObject>().Despawn(true);
         }
 
-        ability1 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.AllAbilities.Abilities[ability1Index]));
+        meleeAbility = Instantiate(customGameInstance.MeleeMap.GetAbilityPrefab(customGameInstance.AllMelee.List[meleeIndex]));
+        NetworkObject meleeAbilityNO = meleeAbility.GetComponent<NetworkObject>();
+        meleeAbilityNO.SpawnWithOwnership(serverParams.Receive.SenderClientId);
+        meleeAbility.Server_Initialize(context);
+
+        ability1 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.AllAbilities.List[ability1Index]));
         NetworkObject ability1NO = ability1.GetComponent<NetworkObject>();
         ability1NO.SpawnWithOwnership(serverParams.Receive.SenderClientId);
+        ability1.Server_Initialize(context);
 
-        ability2 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.AllAbilities.Abilities[ability2Index]));
+        ability2 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.AllAbilities.List[ability2Index]));
         NetworkObject ability2NO = ability2.GetComponent<NetworkObject>();
         ability2NO.SpawnWithOwnership(serverParams.Receive.SenderClientId);
+        ability2.Server_Initialize(context);
 
         ClientRpcParams clientParams = new ClientRpcParams
         {
@@ -112,6 +126,7 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
         SyncAbilitiesClientRpc(new SyncAbilitiesParams
         {
+            melee = meleeAbility.GetComponent<NetworkObject>(),
             ability1 = ability1.GetComponent<NetworkObject>(),
             ability2 = ability2.GetComponent<NetworkObject>()
         }, clientParams);
@@ -121,18 +136,20 @@ public class PlayerAttackComponent : PlayerBaseComponent
     [ClientRpc]
     private void SyncAbilitiesClientRpc(SyncAbilitiesParams syncParams, ClientRpcParams clientParams)
     {
+        syncParams.melee.TryGet(out NetworkObject meleeNO);
         syncParams.ability1.TryGet(out NetworkObject ability1NO);
         syncParams.ability2.TryGet(out NetworkObject ability2NO);
 
+        meleeAbility = meleeNO.GetComponent<Ability>();
         ability1 = ability1NO.GetComponent<Ability>();
         ability2 = ability2NO.GetComponent<Ability>();
 
-        meleeAbility.Initialize(context, this);
+        meleeAbility.Client_Initialize(context, this);
         meleeAbility.OnStarted += OnAbilityStarted;
         meleeAbility.OnFinished += OnAbilityFinished;
 
-        Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability1).AbilityName);
-        Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability2).AbilityName);
+        ability1.Client_Initialize(context, this);
+        ability2.Client_Initialize(context, this);
 
         if (abilityHUD == null)
         {
@@ -147,6 +164,7 @@ public class PlayerAttackComponent : PlayerBaseComponent
     private void OnAbilitiesChanged(AbilitySO ability1, AbilitySO ability2)
     {
         SyncAbilitiesServerRpc(
+            customGameInstance.AllMelee.GetIndexByAbility(customGameInstance.Melee),
             customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability1),
             customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability2),
             new ServerRpcParams()

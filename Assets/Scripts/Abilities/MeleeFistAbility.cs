@@ -33,25 +33,25 @@ public class MeleeFistAbility : Ability
 
     private List<P_PlayerPawn> alreadyHit = new List<P_PlayerPawn>();
 
-    protected override void Start()
+    internal override void Server_Initialize(P_DefaultPlayerPawn context)
     {
-        base.Start();
+        base.Server_Initialize(context);
+
+        attackComponent.MeleeHitbox.TriggerEnter += OnHitboxTriggerEnter;
 
         if (IsServer)
         {
-            attackComponent.MeleeHitbox.TriggerEnter += OnHitboxTriggerEnter;
             impulseSource = attackComponent.GetComponent<CinemachineImpulseSource>();
-        }
-
-        if (IsClient)
-        {
-            attackComponent.OnAbilityApexed += OnAbilityApexed;
         }
     }
 
     protected override void OnAbilityApexed(Ability ability)
     {
-        if (ability == this)
+        if (ability == null) return;
+
+        Debug.Log("hello");
+
+        if (ability.AbilityName == AbilityName)
         {
             if (uses.Value == 0)
             {
@@ -68,9 +68,9 @@ public class MeleeFistAbility : Ability
         }
     }
 
-    public override void Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
+    public override void Client_Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
     {
-        base.Initialize(context, attackComponent);
+        base.Client_Initialize(context, attackComponent);
 
         if (IsOwner)
         {
@@ -131,7 +131,7 @@ public class MeleeFistAbility : Ability
             impulseSource.GenerateImpulse(impulse);
 
             GameObject hitLanded = Instantiate(hitLandedVFXPrefab, target.transform.position, Quaternion.identity);
-            hitLanded.transform.forward = transform.forward;
+            hitLanded.transform.forward = PlayerRoot.forward;
             Destroy(hitLanded, 1f);
 
             alreadyHit.Add(target);
@@ -205,9 +205,9 @@ public class MeleeFistAbility : Ability
         yield return new WaitForSeconds(settings.delay);
 
         //position is relative to the forward direction of the player
-        Vector3 pos = transform.parent.position + (transform.parent.rotation * settings.position);
+        Vector3 pos = PlayerRoot.position + (PlayerRoot.rotation * settings.position);
 
-        GameObject vfx = Instantiate(settings.vfx, pos, transform.parent.rotation * Quaternion.Euler(settings.rotation));
+        GameObject vfx = Instantiate(settings.vfx, pos, PlayerRoot.rotation * Quaternion.Euler(settings.rotation));
         Destroy(vfx, settings.cleanUpTimer);
     }
 }

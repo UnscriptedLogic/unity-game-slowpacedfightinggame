@@ -51,9 +51,6 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
         ability1Set.SetActive(false);
         ability2Set.SetActive(false);
 
-        Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability1).AbilityName);
-        Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability2).AbilityName);
-
         ability1Set.AbilityIcon.sprite = customGameInstance.AbilityMap.GetAbilitySO(ability1).Icon;
         ability2Set.AbilityIcon.sprite = customGameInstance.AbilityMap.GetAbilitySO(ability2).Icon;
 

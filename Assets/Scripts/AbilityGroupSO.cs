@@ -8,7 +8,7 @@ public class AbilityGroupSO : ScriptableObject
 {
     [SerializeField] private List<AbilitySO> abilities;
 
-    public List<AbilitySO> Abilities => abilities;
+    public List<AbilitySO> List => abilities;
 
     internal int GetIndexByAbility(AbilitySO ability1)
     {

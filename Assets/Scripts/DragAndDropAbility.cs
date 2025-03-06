@@ -19,7 +19,7 @@ public class DragAndDropAbility : MonoBehaviour, IBeginDragHandler, IDragHandler
 
     public static event Action<bool> OnDragEvent;
 
-    private void Start()
+    public void Initialize()
     {
         homePos = transform.localPosition;
         homeParent = transform.parent;

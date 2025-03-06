@@ -13,7 +13,10 @@ public class GM_MultiplayerMode : UGameModeBase
     [SerializeField] private List<Transform> spawnPoints;
 
     [SerializeField] private UIC_AbilityLoadout abilityLoadoutPrefab;
+    [SerializeField] private UIC_MeleeLoadout meleeLoadOutPrefab;
+    
     private UIC_AbilityLoadout _abilityLoadout;
+    private UIC_MeleeLoadout _meleeLoadout;
 
     protected override void Init() { }
 
@@ -24,8 +27,23 @@ public class GM_MultiplayerMode : UGameModeBase
         yield return base.Start();
 
         InputContext.FindAction("AbilityMenu").canceled += ShowAbilityMenu;
+        InputContext.FindAction("MeleeMenu").canceled += ShowMeleeMenu;
 
         networkManager.OnClientConnectedCallback += OnClientConnected;
+    }
+
+    private void ShowMeleeMenu(InputAction.CallbackContext context)
+    {
+        if (_playerPawn == null) return;
+        if (_meleeLoadout == null)
+        {
+            _meleeLoadout = _playerPawn.AttachUIWidget(meleeLoadOutPrefab);
+        }
+        else
+        {
+            _playerPawn.DettachUIWidget(_meleeLoadout);
+            _meleeLoadout = null;
+        }
     }
 
     private void ShowAbilityMenu(InputAction.CallbackContext context)
@@ -73,6 +91,7 @@ public class GM_MultiplayerMode : UGameModeBase
 
         ULevelPawn pawn = Instantiate(playerPawn, spawnPoint.position, spawnPoint.rotation);
         pawn.GetComponent<NetworkObject>().SpawnWithOwnership(playerId);
+        NetworkManager.ConnectedClients[playerId].PlayerObject.GetComponent<UController>().PossessPawn(pawn, true);
 
         ClientRpcParams clientRpcParams = new ClientRpcParams
         {
@@ -119,5 +138,15 @@ public class GM_MultiplayerMode : UGameModeBase
         spawnedPlayerReference.TryGet(out NetworkObject networkObject);
         _playerPawn = networkObject.GetComponent<ULevelPawn>();
         _playerController.PossessPawn(_playerPawn, true);
+    }
+
+    public override void OnDestroy()
+    {
+        InputContext.FindAction("AbilityMenu").canceled -= ShowAbilityMenu;
+        InputContext.FindAction("MeleeMenu").canceled -= ShowMeleeMenu;
+
+        networkManager.OnClientConnectedCallback -= OnClientConnected;
+
+        base.OnDestroy();
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 using UnscriptedEngine;
 
@@ -48,29 +49,69 @@ public abstract class Ability : NetworkBehaviour
 
     protected virtual void Start()
     {
-        if (IsClient)
+        if (!IsOwner && IsClient)
         {
-            if (!IsOwner) return;
-        }
+            ServerRpcParams serverRpcParams = new ServerRpcParams()
+            {
+                Receive =
+                {
+                    SenderClientId = OwnerClientId
+                }
+            };
 
-        context = PlayerRoot.GetComponent<P_PlayerPawn>();
-        stateComponent = PlayerRoot.GetComponent<PlayerStateComponent>();
-        audioComponent = PlayerRoot.GetComponent<PlayerAudioComponent>();
-        animatorComponent = PlayerRoot.GetComponentInChildren<PlayerAnimator>();
-        attackComponent = PlayerRoot.GetComponentInChildren<PlayerAttackComponent>();
+            GetSelfServerRpc(serverRpcParams);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void GetSelfServerRpc(ServerRpcParams serverParams)
+    {
+        C_PlayerController controller = NetworkManager.ConnectedClients[serverParams.Receive.SenderClientId].PlayerObject.GetComponent<C_PlayerController>();
+        NetworkObject pawnNO = controller.GetPossessedPawn<P_DefaultPlayerPawn>().GetComponent<NetworkObject>();
+        GetSelfClientRpc(pawnNO);
+    }
+
+    [ClientRpc]
+    private void GetSelfClientRpc(NetworkObjectReference networkObjectReference)
+    {
+        networkObjectReference.TryGet(out NetworkObject networkObject);
+        context = networkObject.GetComponent<P_DefaultPlayerPawn>();
+        playerRoot = networkObject.transform;
+
+        attackComponent = context.GetComponentInChildren<PlayerAttackComponent>();
+        stateComponent = context.GetComponent<PlayerStateComponent>();
+        audioComponent = context.GetComponent<PlayerAudioComponent>();
+        animatorComponent = context.GetComponentInChildren<PlayerAnimator>();
+
+        attackComponent.OnAbilityApexed += OnAbilityApexed;
+    }
+
+    internal virtual void Server_Initialize(P_DefaultPlayerPawn context)
+    {
+        if (!IsServer) return;
+        this.context = context;
+        playerRoot = context.transform;
+
+        attackComponent = context.GetComponentInChildren<PlayerAttackComponent>();
+        stateComponent = context.GetComponent<PlayerStateComponent>();
+        audioComponent = context.GetComponent<PlayerAudioComponent>();
+        animatorComponent = context.GetComponentInChildren<PlayerAnimator>();
 
         attackComponent.OnAbilityApexed += OnAbilityApexed;
     }
 
     protected virtual void OnAbilityApexed(Ability ability) { }
 
-    public virtual void Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
+    public virtual void Client_Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
     {
-        if (IsOwner)
-        {
-            this.context = context;
-            this.attackComponent = attackComponent;
-        }
+        this.context = context;
+        this.attackComponent = attackComponent;
+
+        stateComponent = context.GetComponent<PlayerStateComponent>();
+        audioComponent = context.GetComponent<PlayerAudioComponent>();
+        animatorComponent = context.GetComponentInChildren<PlayerAnimator>();
+
+        attackComponent.OnAbilityApexed += OnAbilityApexed;
     }
 
     protected virtual void Update()

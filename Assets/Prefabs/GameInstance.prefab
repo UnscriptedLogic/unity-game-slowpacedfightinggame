@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4200674894
+  GlobalObjectIdHash: 6616897
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -65,7 +65,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53dc81ac72a5aad4f8558150d8d58980, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  melee: {fileID: 11400000, guid: e63d485cce5ef564194c528a2d4e5bed, type: 2}
   ability1: {fileID: 11400000, guid: 3137d8d0fabc53a4cb5b34f03f5d3cb7, type: 2}
   ability2: {fileID: 11400000, guid: 7ab392be64ec1ea46845163a859595c0, type: 2}
   allAbilityGroup: {fileID: 11400000, guid: 9be947c52ee43eb4882992c3ada89c0b, type: 2}
+  allMeleeGroup: {fileID: 11400000, guid: 0290ceeadeb57874bbee4a265ba8370c, type: 2}
   abilityMapSO: {fileID: 11400000, guid: 6f9f6f57f24141e429daa1ddf0f45f6a, type: 2}
+  meleeMapSO: {fileID: 11400000, guid: 6989bb6069ff5964a866218ba9bb4051, type: 2}

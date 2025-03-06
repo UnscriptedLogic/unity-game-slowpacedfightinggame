@@ -28,6 +28,7 @@ public class AbilityButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         iconImg.sprite = abilitySO.Icon;
         nameTMP.text = abilitySO.AbilityName;
 
+        slotGem.Initialize();
         slotGem.SetAbility(abilitySO);
         Debug.Log(slotGem.AbilitySO);
     }
@@ -37,4 +38,9 @@ public class AbilityButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnDrag(PointerEventData eventData) { }
 
     public void OnEndDrag(PointerEventData eventData) => OnDragEnd?.Invoke();
+
+    public void SetSlot(DragAndDropSlot dragAndDropSlot)
+    {
+        dragAndDropSlot.SetGem(slotGem);
+    }
 }

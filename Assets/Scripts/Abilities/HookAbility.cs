@@ -11,9 +11,9 @@ public class HookAbility : Ability
 
     private ClientRpcParams clientRpcParams;
 
-    protected override void Start()
+    internal override void Server_Initialize(P_DefaultPlayerPawn context)
     {
-        base.Start();
+        base.Server_Initialize(context);
 
         if (IsServer)
         {
@@ -43,7 +43,7 @@ public class HookAbility : Ability
 
         Invoke(nameof(Server_ThrowHook), castDelay);
 
-        cooldown.Value = 1f;
+        cooldown.Value = 12f;
     }
 
     internal void Server_ThrowHook()

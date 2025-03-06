@@ -1,21 +1,18 @@
-using System;
-using TMPro;
 using UnityEngine;
 using UnscriptedEngine;
 
-public class UIC_AbilityLoadout : UCanvasController
+public class UIC_MeleeLoadout : UCanvasController
 {
     [SerializeField] private AbilityView abilityViewModal;
     [SerializeField] private AbilityButton abilityButtonPrefab;
     [SerializeField] private Transform contentParent;
 
-    [SerializeField] private DragAndDropSlot ability1Slot;
-    [SerializeField] private DragAndDropSlot ability2Slot;
+    [SerializeField] private DragAndDropSlot meleeSlot;
 
     [Header("Overrides")]
-    [SerializeField] private AbilityGroupSO overrideAbilityDisplayGroup;
-    
-    private AbilityGroupSO abilityGroup;
+    [SerializeField] private AbilityGroupSO overrideMeleeDisplayGroup;
+
+    private AbilityGroupSO meleeGroup;
     private CustomGameInstance gameInstance;
 
     public override void OnWidgetAttached(ILevelObject context)
@@ -27,25 +24,21 @@ public class UIC_AbilityLoadout : UCanvasController
 
         gameInstance = GameMode.GetGameInstance<CustomGameInstance>();
 
-        if (overrideAbilityDisplayGroup != null)
-            abilityGroup = overrideAbilityDisplayGroup;
+        if (overrideMeleeDisplayGroup != null)
+            meleeGroup = overrideMeleeDisplayGroup;
         else
-            abilityGroup = UGameModeBase.instance.GetGameInstance<CustomGameInstance>().AllAbilities;
+            meleeGroup = UGameModeBase.instance.GetGameInstance<CustomGameInstance>().AllMelee;
 
-        foreach (AbilitySO ability in abilityGroup.List)
+        foreach (AbilitySO melee in meleeGroup.List)
         {
             AbilityButton abilityButton = Instantiate(abilityButtonPrefab, contentParent);
-            abilityButton.SetButton(ability);
-            abilityButton.OnHoverEnter += () => ShowAbilityView(ability);
+            abilityButton.SetButton(melee);
+            abilityButton.OnHoverEnter += () => ShowAbilityView(melee);
             abilityButton.OnHoverExit += () => abilityViewModal.Hide();
 
-            if (ability == gameInstance.Ability1)
+            if (melee == gameInstance.Melee)
             {
-                abilityButton.SetSlot(ability1Slot);
-            }
-            else if (ability == gameInstance.Ability2)
-            {
-                abilityButton.SetSlot(ability2Slot);
+                abilityButton.SetSlot(meleeSlot);
             }
         }
     }
@@ -60,7 +53,7 @@ public class UIC_AbilityLoadout : UCanvasController
         this.ToggleInput(true);
         this.ToggleMouse(false);
 
-        gameInstance.SetAbilities(ability1Slot.AbilitySO, ability2Slot.AbilitySO);
+        gameInstance.SetMelee(meleeSlot.AbilitySO);
 
         base.OnWidgetDetached(context);
     }

@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class AbilityView : MonoBehaviour
 {
-    [SerializeField] private AbilityButton abilityButton;
     [SerializeField] private TextMeshProUGUI descriptionTMP;
+    [SerializeField] private TextMeshProUGUI titleTMP;
 
     internal void Hide()
     {
@@ -14,6 +14,7 @@ public class AbilityView : MonoBehaviour
 
     internal void Show(AbilitySO ability)
     {
+        titleTMP.text = ability.AbilityName;
         descriptionTMP.text = ability.Desc;
 
         gameObject.SetActive(true);
