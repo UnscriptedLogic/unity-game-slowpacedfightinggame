@@ -8,8 +8,10 @@ public class UIC_AbilityLoadout : UCanvasController
     [SerializeField] private AbilityView abilityViewModal;
     [SerializeField] private AbilityButton abilityButtonPrefab;
     [SerializeField] private Transform contentParent;
-    [SerializeField] private AbilityGroupSO overrideAbilityDisplayGroup;
 
+    [Header("Overrides")]
+    [SerializeField] private AbilityGroupSO overrideAbilityDisplayGroup;
+    
     private AbilityGroupSO abilityGroup;
 
     public override void OnWidgetAttached(ILevelObject context)
@@ -27,7 +29,9 @@ public class UIC_AbilityLoadout : UCanvasController
         foreach (AbilitySO ability in abilityGroup.Abilities)
         {
             AbilityButton abilityButton = Instantiate(abilityButtonPrefab, contentParent);
-            abilityButton.SetButton(ability.Icon, ability.AbilityName, () => ShowAbilityView(ability));
+            abilityButton.SetButton(ability);
+            abilityButton.OnHoverEnter += () => ShowAbilityView(ability);
+            abilityButton.OnHoverExit += () => abilityViewModal.Hide();
         }
     }
 
