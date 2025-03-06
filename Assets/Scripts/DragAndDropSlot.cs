@@ -1,11 +1,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class DragAndDropSlot : MonoBehaviour, IDropHandler
 {
-    [SerializeField] private Image iconImg;
-
     private AbilitySO abilitySO;
     private DragAndDropAbility currentDraggedAbility;
 
@@ -26,7 +23,6 @@ public class DragAndDropSlot : MonoBehaviour, IDropHandler
         }
 
         abilitySO = dragAndDrop.AbilitySO;
-        iconImg.sprite = abilitySO.Icon;
         currentDraggedAbility = dragAndDrop;
 
         dragAndDrop.transform.SetParent(transform);

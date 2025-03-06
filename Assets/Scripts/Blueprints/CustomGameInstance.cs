@@ -14,7 +14,7 @@ public class CustomGameInstance : UGameInstance
     public AbilitySO Ability1 => ability1;
     public AbilitySO Ability2 => ability2;
 
-    public AbilityGroupSO AllAbilitise => allAbilityGroup;
+    public AbilityGroupSO AllAbilities => allAbilityGroup;
     public AbilityMapSO AbilityMap => abilityMapSO;
 
     public event Action<AbilitySO, AbilitySO> OnAbilitiesChanged;

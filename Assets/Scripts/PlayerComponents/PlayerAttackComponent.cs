@@ -56,13 +56,21 @@ public class PlayerAttackComponent : PlayerBaseComponent
     {
         base.Initialize(context);
 
-        SyncAbilitiesServerRpc(new ServerRpcParams()
-        {
-            Receive = new ServerRpcReceiveParams()
+        customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
+
+        Debug.Log(customGameInstance);
+        Debug.Log(customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability1));
+
+        SyncAbilitiesServerRpc(
+            customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability1), 
+            customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability2), 
+            new ServerRpcParams()
             {
-                SenderClientId = OwnerClientId
-            }
-        });
+                Receive = new ServerRpcReceiveParams()
+                {
+                    SenderClientId = OwnerClientId
+                }
+            });
 
         playerStateComponent = GetComponent<PlayerStateComponent>();
 
@@ -74,13 +82,23 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
 
     [ServerRpc(RequireOwnership = false)]
-    private void SyncAbilitiesServerRpc(ServerRpcParams serverParams)
+    private void SyncAbilitiesServerRpc(int ability1Index, int ability2Index, ServerRpcParams serverParams)
     {
-        ability1 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.Ability1));
+        if (ability1 != null)
+        {
+            ability1.GetComponent<NetworkObject>().Despawn(true);
+        }
+
+        if (ability2 != null)
+        {
+            ability2.GetComponent<NetworkObject>().Despawn(true);
+        }
+
+        ability1 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.AllAbilities.Abilities[ability1Index]));
         NetworkObject ability1NO = ability1.GetComponent<NetworkObject>();
         ability1NO.SpawnWithOwnership(serverParams.Receive.SenderClientId);
 
-        ability2 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.Ability2));
+        ability2 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.AllAbilities.Abilities[ability2Index]));
         NetworkObject ability2NO = ability2.GetComponent<NetworkObject>();
         ability2NO.SpawnWithOwnership(serverParams.Receive.SenderClientId);
 
@@ -116,7 +134,11 @@ public class PlayerAttackComponent : PlayerBaseComponent
         Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability1).AbilityName);
         Debug.Log(customGameInstance.AbilityMap.GetAbilitySO(ability2).AbilityName);
 
-        abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
+        if (abilityHUD == null)
+        {
+            abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
+        }
+
         abilityHUD.Initialize(meleeAbility, ability1, ability2);
 
         customGameInstance.OnAbilitiesChanged += OnAbilitiesChanged;
@@ -124,12 +146,16 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
     private void OnAbilitiesChanged(AbilitySO ability1, AbilitySO ability2)
     {
-        Destroy(ability1);
-        Destroy(ability2);
-
-        this.ability1 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(ability1), transform);
-        this.ability2 = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(ability2), transform);
-        abilityHUD.ReInitialize(meleeAbility, this.ability1, this.ability2);
+        SyncAbilitiesServerRpc(
+            customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability1),
+            customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability2),
+            new ServerRpcParams()
+            {
+                Receive = new ServerRpcReceiveParams()
+                {
+                    SenderClientId = OwnerClientId
+                }
+            });
 
         Debug.Log("Abilities ReInitialized");
     }
@@ -262,8 +288,8 @@ public class PlayerAttackComponent : PlayerBaseComponent
     {
         if (IsServer)
         {
-            ability1.GetComponent<NetworkObject>().Despawn(true);
-            ability2.GetComponent<NetworkObject>().Despawn(true);
+            ability1?.GetComponent<NetworkObject>().Despawn(true);
+            ability2?.GetComponent<NetworkObject>().Despawn(true);
         }
 
         base.OnDestroy();

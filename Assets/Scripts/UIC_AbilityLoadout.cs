@@ -30,7 +30,7 @@ public class UIC_AbilityLoadout : UCanvasController
         if (overrideAbilityDisplayGroup != null)
             abilityGroup = overrideAbilityDisplayGroup;
         else
-            abilityGroup = UGameModeBase.instance.GetGameInstance<CustomGameInstance>().AllAbilitise;
+            abilityGroup = UGameModeBase.instance.GetGameInstance<CustomGameInstance>().AllAbilities;
 
         foreach (AbilitySO ability in abilityGroup.Abilities)
         {

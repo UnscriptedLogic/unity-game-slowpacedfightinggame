@@ -320,6 +320,8 @@ MonoBehaviour:
   abilityButtonPrefab: {fileID: 7716620296110226043, guid: e22eb9948fe6b834b94360f5f0a740c1,
     type: 3}
   contentParent: {fileID: 4710894805217202582}
+  ability1Slot: {fileID: 7554199428134682019}
+  ability2Slot: {fileID: 3474652570020234910}
   overrideAbilityDisplayGroup: {fileID: 0}
 --- !u!1 &1345958534100174231
 GameObject:
@@ -1770,7 +1772,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2add62d264df6ed429092237b49161a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iconImg: {fileID: 0}
 --- !u!222 &3120457859518476102
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2388,7 +2389,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2add62d264df6ed429092237b49161a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iconImg: {fileID: 0}
 --- !u!222 &8868228776676162963
 CanvasRenderer:
   m_ObjectHideFlags: 0
