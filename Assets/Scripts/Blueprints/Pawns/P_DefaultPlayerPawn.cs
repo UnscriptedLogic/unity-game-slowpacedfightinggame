@@ -12,6 +12,11 @@ public class P_DefaultPlayerPawn : P_PlayerPawn
 
         if (!IsOwner)
         {
+            if (IsServer)
+            {
+                Destroy(cinemachineCam.gameObject);
+            }
+
             cinemachineCam.Priority.Value = -100;
             cinemachineCam.gameObject.SetActive(false);
             return;
@@ -22,7 +27,7 @@ public class P_DefaultPlayerPawn : P_PlayerPawn
     {
         base.OnPossess(uController);
 
-        cinemachineCam.transform.SetParent(null);
+        cinemachineCam?.transform.SetParent(null);
         this.ToggleMouse(false);
 
         InitializeComponents(this);

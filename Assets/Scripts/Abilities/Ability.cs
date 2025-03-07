@@ -25,27 +25,7 @@ public abstract class Ability : NetworkBehaviour
 
     private Transform playerRoot;
 
-    public Transform PlayerRoot
-    {
-        get
-        {
-            if (playerRoot == null)
-            {
-                if (IsServer)
-                {
-                    C_PlayerController controller = NetworkManager.ConnectedClients[OwnerClientId].PlayerObject.GetComponent<C_PlayerController>();
-                    playerRoot = controller.GetPossessedPawn<P_DefaultPlayerPawn>().transform;
-                }
-
-                if (IsClient)
-                {
-                    playerRoot = UGameModeBase.instance.GetPlayerPawn().transform;
-                }
-            }
-
-            return playerRoot;
-        }
-    }
+    public Transform PlayerRoot => playerRoot;
 
     protected virtual void Start()
     {
@@ -55,24 +35,27 @@ public abstract class Ability : NetworkBehaviour
             {
                 Receive =
                 {
-                    SenderClientId = OwnerClientId
+                    SenderClientId = NetworkManager.LocalClientId,
                 }
             };
 
-            GetSelfServerRpc(serverRpcParams);
+            GetSelfServerRpc(OwnerClientId, serverRpcParams);
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void GetSelfServerRpc(ServerRpcParams serverParams)
+    private void GetSelfServerRpc(ulong ownerCliendID, ServerRpcParams serverParams)
     {
-        C_PlayerController controller = NetworkManager.ConnectedClients[serverParams.Receive.SenderClientId].PlayerObject.GetComponent<C_PlayerController>();
+        C_PlayerController controller = NetworkManager.ConnectedClients[ownerCliendID].PlayerObject.GetComponent<C_PlayerController>();
         NetworkObject pawnNO = controller.GetPossessedPawn<P_DefaultPlayerPawn>().GetComponent<NetworkObject>();
-        GetSelfClientRpc(pawnNO);
+
+        ClientRpcParams clientParams = ClientSenderParams(serverParams);
+
+        GetSelfClientRpc(pawnNO, clientParams);
     }
 
     [ClientRpc]
-    private void GetSelfClientRpc(NetworkObjectReference networkObjectReference)
+    private void GetSelfClientRpc(NetworkObjectReference networkObjectReference, ClientRpcParams clientParams)
     {
         networkObjectReference.TryGet(out NetworkObject networkObject);
         context = networkObject.GetComponent<P_DefaultPlayerPawn>();
@@ -104,8 +87,11 @@ public abstract class Ability : NetworkBehaviour
 
     public virtual void Client_Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
     {
+        Debug.Log(context, gameObject);
+
         this.context = context;
         this.attackComponent = attackComponent;
+        playerRoot = context.transform;
 
         stateComponent = context.GetComponent<PlayerStateComponent>();
         audioComponent = context.GetComponent<PlayerAudioComponent>();

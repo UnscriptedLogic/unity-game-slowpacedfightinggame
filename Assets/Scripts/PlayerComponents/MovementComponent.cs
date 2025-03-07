@@ -84,7 +84,10 @@ public class MovementComponent : PlayerBaseComponent
 
         movementSettings.ResetJumpCounter();
 
-        context.GetDefaultInputMap().FindAction("MouseDelta").performed += OnMouseDelta;
+        if (!IsServer)
+        {
+            context.GetDefaultInputMap().FindAction("MouseDelta").performed += OnMouseDelta;
+        }
 
         initialized = true;
 

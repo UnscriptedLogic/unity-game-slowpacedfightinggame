@@ -8,12 +8,14 @@ public class PlayerAttackComponent : PlayerBaseComponent
 {
     public class SyncAbilitiesParams : INetworkSerializable
     {
+        public NetworkObjectReference context;
         public NetworkObjectReference melee;
         public NetworkObjectReference ability1;
         public NetworkObjectReference ability2;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
+            serializer.SerializeValue(ref context);
             serializer.SerializeValue(ref melee);
             serializer.SerializeValue(ref ability1);
             serializer.SerializeValue(ref ability2);
@@ -126,6 +128,7 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
         SyncAbilitiesClientRpc(new SyncAbilitiesParams
         {
+            context = context.GetComponent<NetworkObject>(),
             melee = meleeAbility.GetComponent<NetworkObject>(),
             ability1 = ability1.GetComponent<NetworkObject>(),
             ability2 = ability2.GetComponent<NetworkObject>()
@@ -136,10 +139,13 @@ public class PlayerAttackComponent : PlayerBaseComponent
     [ClientRpc]
     private void SyncAbilitiesClientRpc(SyncAbilitiesParams syncParams, ClientRpcParams clientParams)
     {
+        syncParams.context.TryGet(out NetworkObject contextNO);
         syncParams.melee.TryGet(out NetworkObject meleeNO);
         syncParams.ability1.TryGet(out NetworkObject ability1NO);
         syncParams.ability2.TryGet(out NetworkObject ability2NO);
 
+        P_DefaultPlayerPawn syncContext = contextNO.GetComponent<P_DefaultPlayerPawn>();
+        PlayerAttackComponent syncAttackComponent = syncContext.GetComponentInChildren<PlayerAttackComponent>();
         meleeAbility = meleeNO.GetComponent<Ability>();
         ability1 = ability1NO.GetComponent<Ability>();
         ability2 = ability2NO.GetComponent<Ability>();
@@ -302,15 +308,16 @@ public class PlayerAttackComponent : PlayerBaseComponent
         currentState = States.Idle;
     }
 
-    public override void OnDestroy()
+    public override void OnNetworkDespawn()
     {
         if (IsServer)
         {
+            meleeAbility?.GetComponent<NetworkObject>().Despawn(true);
             ability1?.GetComponent<NetworkObject>().Despawn(true);
             ability2?.GetComponent<NetworkObject>().Despawn(true);
         }
 
-        base.OnDestroy();
+        base.OnNetworkDespawn();
     }
 
     public override void DeInitialize(P_PlayerPawn context)

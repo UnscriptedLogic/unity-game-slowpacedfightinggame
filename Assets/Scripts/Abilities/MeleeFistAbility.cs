@@ -43,13 +43,13 @@ public class MeleeFistAbility : Ability
         {
             impulseSource = attackComponent.GetComponent<CinemachineImpulseSource>();
         }
+
+        uses.Value = 2;
     }
 
     protected override void OnAbilityApexed(Ability ability)
     {
         if (ability == null) return;
-
-        Debug.Log("hello");
 
         if (ability.AbilityName == AbilityName)
         {

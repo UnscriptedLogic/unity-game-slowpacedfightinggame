@@ -88,7 +88,6 @@ public class GM_MultiplayerMode : UGameModeBase
     private void ReSpawnPlayer(ulong playerId)
     {
         Transform spawnPoint = spawnPoints.GetRandomElement();
-
         ULevelPawn pawn = Instantiate(playerPawn, spawnPoint.position, spawnPoint.rotation);
         pawn.GetComponent<NetworkObject>().SpawnWithOwnership(playerId);
         NetworkManager.ConnectedClients[playerId].PlayerObject.GetComponent<UController>().PossessPawn(pawn, true);
@@ -118,7 +117,6 @@ public class GM_MultiplayerMode : UGameModeBase
         Transform spawnPoint = spawnPoints.GetRandomElement();
         ULevelPawn pawn = Instantiate(playerPawn, spawnPoint.position, spawnPoint.rotation);
         pawn.GetComponent<NetworkObject>().SpawnWithOwnership(playerId);
-
         NetworkManager.ConnectedClients[playerId].PlayerObject.GetComponent<UController>().PossessPawn(pawn, true);
 
         ClientRpcParams clientRpcParams = new ClientRpcParams
