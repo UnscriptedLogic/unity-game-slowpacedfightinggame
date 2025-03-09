@@ -16,6 +16,11 @@ public class DragAndDropSlot : MonoBehaviour, IDropHandler
         OnDropped += OnAbilityDroppedIntoSlot;
     }
 
+    private void OnDestroy()
+    {
+        OnDropped -= OnAbilityDroppedIntoSlot;
+    }
+
     private void OnAbilityDroppedIntoSlot()
     {
         if (currentDraggedAbility.transform.parent != transform)

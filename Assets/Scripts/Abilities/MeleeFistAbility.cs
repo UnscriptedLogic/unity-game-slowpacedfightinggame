@@ -38,12 +38,7 @@ public class MeleeFistAbility : Ability
         base.Server_Initialize(context);
 
         attackComponent.MeleeHitbox.TriggerEnter += OnHitboxTriggerEnter;
-
-        if (IsServer)
-        {
-            impulseSource = attackComponent.GetComponent<CinemachineImpulseSource>();
-        }
-
+        impulseSource = attackComponent.GetComponent<CinemachineImpulseSource>();
         uses.Value = 2;
     }
 
@@ -68,7 +63,7 @@ public class MeleeFistAbility : Ability
         }
     }
 
-    public override void Client_Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
+    internal override void Client_Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
     {
         base.Client_Initialize(context, attackComponent);
 
@@ -77,6 +72,13 @@ public class MeleeFistAbility : Ability
             impulseSource = attackComponent.GetComponent<CinemachineImpulseSource>();
             attackComponent.MeleeHitbox.TriggerEnter += OnHitboxTriggerEnter;
         }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        attackComponent.MeleeHitbox.TriggerEnter -= OnHitboxTriggerEnter;
     }
 
     private void OnHitboxTriggerEnter(object sender, Collider e)
@@ -138,10 +140,11 @@ public class MeleeFistAbility : Ability
         }
     }
 
-
     [ClientRpc]
     private void OnHitClientRpc()
     {
+        Debug.Log(uses == null);
+
         if (uses.Value == 2)
         {
             audioComponent.PlayAudio(hitSFXes[1], 0.5f);

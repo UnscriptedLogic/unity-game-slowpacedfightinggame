@@ -6,7 +6,6 @@ public class HookAbility : Ability
 {
     [SerializeField] private Vector3 createOffset = new Vector3(0f, 1f, 1.5f);
     [SerializeField] private Hook hookPrefab;
-    [SerializeField] private AnimationClip throwAnimation;
     [SerializeField] private float castDelay;
 
     private ClientRpcParams clientRpcParams;
@@ -38,7 +37,7 @@ public class HookAbility : Ability
 
         UseAbilityClientRpc(clientRpcParams);
         
-        animatorComponent.Ability2Upper();
+        animatorComponent.Server_AbilityUpper(attackComponent.GetIndexFromAbility(this));
         uses.Value--;
 
         Invoke(nameof(Server_ThrowHook), castDelay);

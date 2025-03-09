@@ -989,7 +989,8 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: fa757302470db644c9c61b77952582e9, type: 2}
+      objectReference: {fileID: 22100000, guid: c7254a96a5d75624f83f39e730687112,
+        type: 2}
     - target: {fileID: 6107195191496518232, guid: 0d43e28dbc4004a4cae1073264fc7c05,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1115,70 +1116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64e94e4777482494ab9d285ba193e082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TransitionStateInfoList:
-  - IsCrossFadeExit: 0
-    Layer: 0
-    OriginatingState: 1397128752
-    DestinationState: 201166264
-    TransitionDuration: 0
-    TriggerNameHash: 1221332171
-    TransitionIndex: 0
-  - IsCrossFadeExit: 0
-    Layer: 1
-    OriginatingState: 753088835
-    DestinationState: 628006532
-    TransitionDuration: 0
-    TriggerNameHash: -47317214
-    TransitionIndex: 0
-  - IsCrossFadeExit: 0
-    Layer: 1
-    OriginatingState: 753088835
-    DestinationState: -1134047426
-    TransitionDuration: 0
-    TriggerNameHash: 1680125592
-    TransitionIndex: 1
-  - IsCrossFadeExit: 0
-    Layer: 1
-    OriginatingState: 753088835
-    DestinationState: -882835544
-    TransitionDuration: 0
-    TriggerNameHash: 321101326
-    TransitionIndex: 2
-  - IsCrossFadeExit: 0
-    Layer: 1
-    OriginatingState: 753088835
-    DestinationState: 1291083416
-    TransitionDuration: 0
-    TriggerNameHash: 1441808008
-    TransitionIndex: 3
-  - IsCrossFadeExit: 0
-    Layer: 1
-    OriginatingState: 753088835
-    DestinationState: -899666890
-    TransitionDuration: 0
-    TriggerNameHash: -899666890
-    TransitionIndex: 4
-  - IsCrossFadeExit: 0
-    Layer: 1
-    OriginatingState: 628006532
-    DestinationState: -1134047426
-    TransitionDuration: 0
-    TriggerNameHash: 1680125592
-    TransitionIndex: 0
-  - IsCrossFadeExit: 0
-    Layer: 1
-    OriginatingState: -1134047426
-    DestinationState: -882835544
-    TransitionDuration: 0.25
-    TriggerNameHash: 321101326
-    TransitionIndex: 1
-  - IsCrossFadeExit: 0
-    Layer: 1
-    OriginatingState: 1397128752
-    DestinationState: 753088835
-    TransitionDuration: 0
-    TriggerNameHash: 680781288
-    TransitionIndex: 0
+  TransitionStateInfoList: []
   m_Animator: {fileID: 7481510642489273277}
 --- !u!114 &4264756581922255303
 MonoBehaviour:
@@ -1204,6 +1142,11 @@ MonoBehaviour:
   animator: {fileID: 7481510642489273277}
   networkAnimator: {fileID: 1921791853691731494}
   playerStateComponent: {fileID: 4609101280086281784}
+  overrideControllerPrefab: {fileID: 22100000, guid: c7254a96a5d75624f83f39e730687112,
+    type: 2}
+  allAnimationsContainer: {fileID: 11400000, guid: d9721c1ca8cbece4e98816a862b0335b,
+    type: 2}
+  attackComponent: {fileID: 4599922072954142757}
 --- !u!114 &4599922072954142757
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1225,9 +1168,11 @@ MonoBehaviour:
     SpacePriority: 0
     ShiftPriority: 0
     InteractPriority: 0
+  ability1Id:
+    m_InternalValue: 0
+  ability2Id:
+    m_InternalValue: 0
   meleeAbility: {fileID: 0}
-  ability1: {fileID: 0}
-  ability2: {fileID: 0}
   meleeHitbox: {fileID: 3274380308064362579}
   abilityHUDPrefab: {fileID: 8955138282916284445, guid: de622d9e0d12d694f98b71972d5d4786,
     type: 3}

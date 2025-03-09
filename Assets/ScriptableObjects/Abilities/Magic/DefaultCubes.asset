@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce2ded4aeeaf143468d13cc86549c533, type: 3}
   m_Name: DefaultCubes
   m_EditorClassIdentifier: 
+  abilityId: 1000
   icon: {fileID: 21300000, guid: 3df65e1b5a5990345a60f26a546e1334, type: 3}
   abilityName: Default Cubes
   desc: Throws a big cube that stuns and deals damage when coming into contact with

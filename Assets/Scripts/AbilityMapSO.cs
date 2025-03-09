@@ -45,4 +45,15 @@ public class AbilityMapSO : ScriptableObject
         Debug.LogWarning("AbilitySO not found for prefab: " + prefab);
         return null;
     }
+
+    internal Ability GetAbilityByID(int abilityID)
+    {
+        for (int i = 0; i < abilityMapping.Count; i++)
+        {
+            if (abilityMapping[i].ability.ID == abilityID)
+                return abilityMapping[i].prefab;
+        }
+
+        return null;
+    }
 }

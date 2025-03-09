@@ -64,4 +64,9 @@ public class DragAndDropAbility : MonoBehaviour, IBeginDragHandler, IDragHandler
         iconImg.sprite = abilitySO.Icon;
         this.abilitySO = abilitySO;
     }
+
+    private void OnDestroy()
+    {
+        OnDragEvent -= DragEvent;
+    }
 }

@@ -31,14 +31,12 @@ public class CustomGameInstance : UGameInstance
         this.ability1 = ability1;
         this.ability2 = ability2;
 
-        Debug.Log("Abilities Changed");
         OnAbilitiesChanged?.Invoke(ability1, ability2);
     }
 
     public void SetMelee(AbilitySO melee)
     {
         this.melee = melee;
-        Debug.Log("Melee Changed");
 
         OnMeleeChanged?.Invoke(melee);
     }

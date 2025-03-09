@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce2ded4aeeaf143468d13cc86549c533, type: 3}
-  m_Name: Snowball
+  m_Script: {fileID: 11500000, guid: 28bdfa7390b87f04b976a111e84154ff, type: 3}
+  m_Name: AllAnimations
   m_EditorClassIdentifier: 
-  abilityId: 1003
-  icon: {fileID: 21300000, guid: a917b969cb306f847a65dae3b91ed282, type: 3}
-  abilityName: Snowball
-  desc: Throws a big snowball that carries any opponent that touches it.
+  allAnimations:
+  - {fileID: 7400000, guid: 53a99c4afa65abe489796bceefc059d6, type: 2}
+  - {fileID: 7400000, guid: 550488a8fcdfe7e498f2f40a857aa7db, type: 2}

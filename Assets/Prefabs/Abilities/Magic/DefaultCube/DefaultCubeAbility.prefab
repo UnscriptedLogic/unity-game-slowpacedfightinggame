@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2722157521
+  GlobalObjectIdHash: 2035492114
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -65,14 +65,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6feaca12f46b6784bbb2b753eecb9e35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  abilityId: 1000
   abilityName: Default Cubes
+  abilityAnimation: {fileID: 7400000, guid: 53a99c4afa65abe489796bceefc059d6, type: 2}
   uses:
     m_InternalValue: 0
   cooldown:
     m_InternalValue: 0
   createOffset: {x: 0, y: 1, z: 1.5}
-  throwAnimation: {fileID: -623603649343465320, guid: b4f90a57ff7e5a14882b0813a20c0cb9,
-    type: 3}
   defaultCubePrefab: {fileID: 3824499333240254311, guid: 4950bad250faa104fbce47e567746641,
     type: 3}
   castDelay: 0.2

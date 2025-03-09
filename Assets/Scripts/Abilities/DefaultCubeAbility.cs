@@ -5,7 +5,6 @@ using UnityEngine;
 public class DefaultCubeAbility : Ability
 {
     [SerializeField] private Vector3 createOffset = new Vector3(0f, 1f, 1.5f);
-    [SerializeField] private AnimationClip throwAnimation;
     [SerializeField] private DefaultCube defaultCubePrefab;
     [SerializeField] private float castDelay;
 
@@ -45,7 +44,7 @@ public class DefaultCubeAbility : Ability
             }
         };
 
-        animatorComponent.Ability1();
+        animatorComponent.Server_AbilityUpper(attackComponent.GetIndexFromAbility(this));
 
         Invoke(nameof(ThrowCube), castDelay);
 
@@ -53,7 +52,7 @@ public class DefaultCubeAbility : Ability
 
         if (uses.Value > 0)
         {
-            cooldown.Value = throwAnimation.length;
+            cooldown.Value = AbilityAnimation.length;
         }
         else
         {

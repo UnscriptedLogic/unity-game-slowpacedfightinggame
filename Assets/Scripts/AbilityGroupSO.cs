@@ -21,4 +21,15 @@ public class AbilityGroupSO : ScriptableObject
         Debug.LogWarning("Ability not found in AbilityGroupSO");
         return -1;
     }
+
+
+    internal AbilitySO GetAbilityByIndex(int index)
+    {
+        if (index < 0 || index >= abilities.Count)
+        {
+            Debug.LogWarning("Index out of range in AbilityGroupSO");
+            return null;
+        }
+        return abilities[index];
+    }
 }

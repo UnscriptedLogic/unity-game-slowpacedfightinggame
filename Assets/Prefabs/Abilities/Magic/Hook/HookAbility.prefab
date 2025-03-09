@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2651439812
+  GlobalObjectIdHash: 2186385230
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -65,7 +65,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a9fc2f2afeab4249be5e0815f17f5f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  abilityId: 1001
   abilityName: Claw Hook
+  abilityAnimation: {fileID: 7400000, guid: 550488a8fcdfe7e498f2f40a857aa7db, type: 2}
   uses:
     m_InternalValue: 0
   cooldown:
@@ -73,5 +75,4 @@ MonoBehaviour:
   createOffset: {x: 0, y: 0, z: 1.5}
   hookPrefab: {fileID: 2638882202443081225, guid: de2449495cf800340bacb189e7b02586,
     type: 3}
-  throwAnimation: {fileID: 7400000, guid: c714a850f74aec14dab09ab55609f562, type: 2}
   castDelay: 0

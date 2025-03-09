@@ -30,7 +30,6 @@ public class AbilityButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
         slotGem.Initialize();
         slotGem.SetAbility(abilitySO);
-        Debug.Log(slotGem.AbilitySO);
     }
 
     public void OnBeginDrag(PointerEventData eventData) => OnDragStart?.Invoke();

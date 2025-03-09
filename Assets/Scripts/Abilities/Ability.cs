@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEditor;
 using UnityEngine;
-using UnscriptedEngine;
 
 public abstract class Ability : NetworkBehaviour
 {
+    [SerializeField] private int abilityId;
     [SerializeField] private string abilityName;
+    [SerializeField] private AnimationClip abilityAnimation;
 
     protected P_PlayerPawn context;
     protected PlayerAttackComponent attackComponent;
@@ -21,7 +21,9 @@ public abstract class Ability : NetworkBehaviour
     public event Action<Ability> OnStarted;
     public event Action<Ability> OnFinished;
 
+    public int AbilityId => abilityId;
     public string AbilityName => abilityName;
+    public AnimationClip AbilityAnimation => abilityAnimation;
 
     private Transform playerRoot;
 
@@ -85,10 +87,8 @@ public abstract class Ability : NetworkBehaviour
 
     protected virtual void OnAbilityApexed(Ability ability) { }
 
-    public virtual void Client_Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
+    internal virtual void Client_Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
     {
-        Debug.Log(context, gameObject);
-
         this.context = context;
         this.attackComponent = attackComponent;
         playerRoot = context.transform;
@@ -154,5 +154,15 @@ public abstract class Ability : NetworkBehaviour
     public virtual void FinishAbility(Ability ability)
     {
         OnFinished?.Invoke(ability);
+    }
+
+    public override void OnDestroy()
+    {
+        if (attackComponent != null)
+        {
+            attackComponent.OnAbilityApexed -= OnAbilityApexed;
+        }
+
+        base.OnDestroy();
     }
 }

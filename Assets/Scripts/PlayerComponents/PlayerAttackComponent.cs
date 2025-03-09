@@ -1,4 +1,6 @@
 using System;
+using System.Data;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -29,9 +31,12 @@ public class PlayerAttackComponent : PlayerBaseComponent
         Stunned
     }
 
+    public NetworkVariable<int> ability1Id = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> ability2Id = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     [SerializeField] private Ability meleeAbility;
-    [SerializeField] private Ability ability1;
-    [SerializeField] private Ability ability2;
+    private Ability ability1;
+    private Ability ability2;
     [SerializeField] private TriggerHandler meleeHitbox;
 
     [SerializeField] private UIC_AbilityHUD abilityHUDPrefab;
@@ -51,14 +56,30 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
     public event Action<Ability> OnAbilityApexed;
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
+
+        if (IsServer)
+        {
+            ability1Id.Value = customGameInstance.Ability1.ID;
+            ability2Id.Value = customGameInstance.Ability2.ID;
+        }
+
+        if (IsClient)
+        {
+            ability1Id.OnValueChanged += Ability1Changed;
+            ability2Id.OnValueChanged += Ability2Changed;
+        }
     }
 
     public override void Initialize(P_PlayerPawn context)
     {
         base.Initialize(context);
+
+        if (!IsOwner) return;
 
         customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
 
@@ -82,6 +103,23 @@ public class PlayerAttackComponent : PlayerBaseComponent
         MonoBehaviourExtensions.OnToggleInput += OnToggleInput;
     }
 
+    public override void OnDestroy()
+    {
+        ability1Id.OnValueChanged -= Ability1Changed;
+        ability2Id.OnValueChanged -= Ability2Changed;
+
+        base.OnDestroy();
+    }
+
+    private void Ability1Changed(int previousValue, int newValue)
+    {
+        Debug.Log(newValue);
+    }
+
+    private void Ability2Changed(int previousValue, int newValue)
+    {
+        Debug.Log(newValue);
+    }
 
     [ServerRpc(RequireOwnership = false)]
     private void SyncAbilitiesServerRpc(int meleeIndex, int ability1Index, int ability2Index, ServerRpcParams serverParams)
@@ -102,6 +140,12 @@ public class PlayerAttackComponent : PlayerBaseComponent
         {
             ability2.GetComponent<NetworkObject>().Despawn(true);
         }
+
+        ability1Id.Initialize(this);
+        ability2Id.Initialize(this);
+
+        ability1Id.Value = customGameInstance.AllAbilities.List[ability1Index].ID;
+        ability2Id.Value = customGameInstance.AllAbilities.List[ability2Index].ID;
 
         meleeAbility = Instantiate(customGameInstance.MeleeMap.GetAbilityPrefab(customGameInstance.AllMelee.List[meleeIndex]));
         NetworkObject meleeAbilityNO = meleeAbility.GetComponent<NetworkObject>();
@@ -132,20 +176,22 @@ public class PlayerAttackComponent : PlayerBaseComponent
             melee = meleeAbility.GetComponent<NetworkObject>(),
             ability1 = ability1.GetComponent<NetworkObject>(),
             ability2 = ability2.GetComponent<NetworkObject>()
-        }, clientParams);
+        });
     }
 
 
     [ClientRpc]
-    private void SyncAbilitiesClientRpc(SyncAbilitiesParams syncParams, ClientRpcParams clientParams)
+    private void SyncAbilitiesClientRpc(SyncAbilitiesParams syncParams, ClientRpcParams clientParams = default)
     {
+        Debug.Log("SyncAbilitiesClientRpc", gameObject);
+
         syncParams.context.TryGet(out NetworkObject contextNO);
         syncParams.melee.TryGet(out NetworkObject meleeNO);
         syncParams.ability1.TryGet(out NetworkObject ability1NO);
         syncParams.ability2.TryGet(out NetworkObject ability2NO);
 
-        P_DefaultPlayerPawn syncContext = contextNO.GetComponent<P_DefaultPlayerPawn>();
-        PlayerAttackComponent syncAttackComponent = syncContext.GetComponentInChildren<PlayerAttackComponent>();
+        P_DefaultPlayerPawn context = contextNO.GetComponent<P_DefaultPlayerPawn>();
+
         meleeAbility = meleeNO.GetComponent<Ability>();
         ability1 = ability1NO.GetComponent<Ability>();
         ability2 = ability2NO.GetComponent<Ability>();
@@ -157,22 +203,25 @@ public class PlayerAttackComponent : PlayerBaseComponent
         ability1.Client_Initialize(context, this);
         ability2.Client_Initialize(context, this);
 
-        if (abilityHUD == null)
+        if (IsOwner)
         {
-            abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
+            if (abilityHUD == null)
+            {
+                abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
+            }
+
+            abilityHUD.Initialize(meleeAbility, ability1, ability2);
+
+            customGameInstance.OnAbilitiesChanged += OnAbilitiesChanged;
         }
-
-        abilityHUD.Initialize(meleeAbility, ability1, ability2);
-
-        customGameInstance.OnAbilitiesChanged += OnAbilitiesChanged;
     }
 
     private void OnAbilitiesChanged(AbilitySO ability1, AbilitySO ability2)
     {
         SyncAbilitiesServerRpc(
             customGameInstance.AllMelee.GetIndexByAbility(customGameInstance.Melee),
-            customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability1),
-            customGameInstance.AllAbilities.GetIndexByAbility(customGameInstance.Ability2),
+            customGameInstance.AllAbilities.GetIndexByAbility(ability1),
+            customGameInstance.AllAbilities.GetIndexByAbility(ability2),
             new ServerRpcParams()
             {
                 Receive = new ServerRpcReceiveParams()
@@ -180,8 +229,6 @@ public class PlayerAttackComponent : PlayerBaseComponent
                     SenderClientId = OwnerClientId
                 }
             });
-
-        Debug.Log("Abilities ReInitialized");
     }
 
     private void OnToggleInput(bool obj)
@@ -194,14 +241,14 @@ public class PlayerAttackComponent : PlayerBaseComponent
         OnAbilityApexed?.Invoke(currentAbility);
     }
 
-    private void OnAbility2(InputAction.CallbackContext context)
-    {
-        AbilityConfig(2);
-    }
-
     private void OnAbility1(InputAction.CallbackContext context)
     {
         AbilityConfig(1);
+    }
+
+    private void OnAbility2(InputAction.CallbackContext context)
+    {
+        AbilityConfig(2);
     }
 
     public override void OnDefaultLeftMouseDown(out bool swallowInput)
@@ -308,13 +355,56 @@ public class PlayerAttackComponent : PlayerBaseComponent
         currentState = States.Idle;
     }
 
+    public int GetIndexFromAbility(Ability ability)
+    {
+        if (ability == meleeAbility)
+        {
+            return 0;
+        }
+        else if (ability == ability1)
+        {
+            return 1;
+        }
+        else if (ability == ability2)
+        {
+            return 2;
+        }
+
+        return -1;
+    }
+
+    public Ability GetAbilityFromIndex(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                return meleeAbility;
+            case 1:
+                return ability1;
+            case 2:
+                return ability2;
+        }
+        return null;
+    }
+
     public override void OnNetworkDespawn()
     {
         if (IsServer)
         {
-            meleeAbility?.GetComponent<NetworkObject>().Despawn(true);
-            ability1?.GetComponent<NetworkObject>().Despawn(true);
-            ability2?.GetComponent<NetworkObject>().Despawn(true);
+            if (meleeAbility.IsSpawned)
+                meleeAbility?.GetComponent<NetworkObject>().Despawn(true);
+
+            if (ability1.IsSpawned)
+                ability1?.GetComponent<NetworkObject>().Despawn(true);
+
+            if (ability2.IsSpawned)
+                ability2?.GetComponent<NetworkObject>().Despawn(true);
+        }
+
+        if (IsClient)
+        {
+            context.GetDefaultInputMap().FindAction("Ability1").performed -= OnAbility1;
+            context.GetDefaultInputMap().FindAction("Ability2").performed -= OnAbility2;
         }
 
         base.OnNetworkDespawn();
