@@ -44,19 +44,21 @@ public class Hook : NetworkBehaviour
 
         travelTime = 0;
 
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        {
+            P_PlayerPawn player = other.GetComponentInParent<P_PlayerPawn>();
+            PlayerStateComponent state = player.GetPlayerComponent<PlayerStateComponent>();
+            if (state.HasStatusEffect(StatusEffect.Type.Invincible)) return;
+
+            player.GetPlayerComponent<PlayerStateComponent>().Server_AddStatusEffect(new StatusEffect(StatusEffect.Type.Stun, 2f));
+        }
+
         if (other.gameObject.activeInHierarchy)
         {
             transform.position = other.transform.position;
             networkObject.TrySetParent(transform);
 
             target = other.transform;
-        }
-
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
-        {
-            P_PlayerPawn player = other.GetComponentInParent<P_PlayerPawn>();
-
-            player.GetPlayerComponent<PlayerStateComponent>().Server_AddStatusEffect(new StatusEffect(StatusEffect.Type.Stun, 2f));
         }
     }
 

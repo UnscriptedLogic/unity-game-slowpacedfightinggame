@@ -162,12 +162,13 @@ public class MovementComponent : PlayerBaseComponent
 
             if (movementSettings.InputDir.magnitude > 0.01f)
             {
-                if (playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return;
-
-                //move player using rigidbody
-                float efficiency = isGrounded ? 1f : 0.5f;
-                float speed = shiftPressed ? movementSettings.speed * movementSettings.sprintMultiplier : movementSettings.speed;
-                rb.MovePosition(transform.position + (transform.TransformDirection(movementSettings.InputDir) * speed * Time.fixedDeltaTime));
+                if (!playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun))
+                {
+                    //move player using rigidbody
+                    float efficiency = isGrounded ? 1f : 0.5f;
+                    float speed = shiftPressed ? movementSettings.speed * movementSettings.sprintMultiplier : movementSettings.speed;
+                    rb.MovePosition(transform.position + (transform.TransformDirection(movementSettings.InputDir) * speed * Time.fixedDeltaTime));
+                }
 
                 if (isGrounded && walkIntervalTimer <= 0f)
                 {
@@ -215,10 +216,16 @@ public class MovementComponent : PlayerBaseComponent
 
         if (lastData == null) return;
 
+
         Vector3 moveVector = transform.TransformDirection(lastData.input) * movementSettings.speed * Time.fixedDeltaTime;
         Physics.simulationMode = SimulationMode.Script;
         transform.position = lastData.position;
-        rb.MovePosition(transform.position + (transform.TransformDirection(lastData.input) * movementSettings.speed * Time.fixedDeltaTime));
+        
+        if (!playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun))
+        {
+            rb.MovePosition(transform.position + (transform.TransformDirection(lastData.input) * movementSettings.speed * Time.fixedDeltaTime));
+        }
+
         Physics.Simulate(Time.fixedDeltaTime);
         Vector3 correctPos = transform.position;
         transform.position = startPos;

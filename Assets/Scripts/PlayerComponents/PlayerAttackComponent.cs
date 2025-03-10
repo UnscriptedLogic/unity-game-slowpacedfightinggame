@@ -14,6 +14,7 @@ public class PlayerAttackComponent : PlayerBaseComponent
         public NetworkObjectReference melee;
         public NetworkObjectReference ability1;
         public NetworkObjectReference ability2;
+        public NetworkObjectReference dodge;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
@@ -21,6 +22,7 @@ public class PlayerAttackComponent : PlayerBaseComponent
             serializer.SerializeValue(ref melee);
             serializer.SerializeValue(ref ability1);
             serializer.SerializeValue(ref ability2);
+            serializer.SerializeValue(ref dodge);
         }
     }
 
@@ -33,10 +35,13 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
     public NetworkVariable<int> ability1Id = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkVariable<int> ability2Id = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private int dodgeId = 1999;
 
     [SerializeField] private Ability meleeAbility;
     private Ability ability1;
     private Ability ability2;
+    private Ability dodgeAbility;
+
     [SerializeField] private TriggerHandler meleeHitbox;
 
     [SerializeField] private UIC_AbilityHUD abilityHUDPrefab;
@@ -99,6 +104,7 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
         context.GetDefaultInputMap().FindAction("Ability1").performed += OnAbility1;
         context.GetDefaultInputMap().FindAction("Ability2").performed += OnAbility2;
+        context.GetDefaultInputMap().FindAction("Dodge").performed += OnAbility3;
 
         MonoBehaviourExtensions.OnToggleInput += OnToggleInput;
     }
@@ -141,6 +147,11 @@ public class PlayerAttackComponent : PlayerBaseComponent
             ability2.GetComponent<NetworkObject>().Despawn(true);
         }
 
+        if (dodgeAbility != null)
+        {
+            dodgeAbility.GetComponent<NetworkObject>().Despawn(true);
+        }
+
         ability1Id.Initialize(this);
         ability2Id.Initialize(this);
 
@@ -162,6 +173,11 @@ public class PlayerAttackComponent : PlayerBaseComponent
         ability2NO.SpawnWithOwnership(serverParams.Receive.SenderClientId);
         ability2.Server_Initialize(context);
 
+        dodgeAbility = Instantiate(customGameInstance.AbilityMap.GetAbilityPrefab(customGameInstance.AllAbilities.GetAbilityByID(1999)));
+        NetworkObject dodgeAbilityNO = dodgeAbility.GetComponent<NetworkObject>();
+        dodgeAbilityNO.SpawnWithOwnership(serverParams.Receive.SenderClientId);
+        dodgeAbility.Server_Initialize(context);
+
         ClientRpcParams clientParams = new ClientRpcParams
         {
             Send = new ClientRpcSendParams
@@ -175,7 +191,8 @@ public class PlayerAttackComponent : PlayerBaseComponent
             context = context.GetComponent<NetworkObject>(),
             melee = meleeAbility.GetComponent<NetworkObject>(),
             ability1 = ability1.GetComponent<NetworkObject>(),
-            ability2 = ability2.GetComponent<NetworkObject>()
+            ability2 = ability2.GetComponent<NetworkObject>(),
+            dodge = dodgeAbility.GetComponent<NetworkObject>()
         });
     }
 
@@ -183,25 +200,26 @@ public class PlayerAttackComponent : PlayerBaseComponent
     [ClientRpc]
     private void SyncAbilitiesClientRpc(SyncAbilitiesParams syncParams, ClientRpcParams clientParams = default)
     {
-        Debug.Log("SyncAbilitiesClientRpc", gameObject);
-
         syncParams.context.TryGet(out NetworkObject contextNO);
         syncParams.melee.TryGet(out NetworkObject meleeNO);
         syncParams.ability1.TryGet(out NetworkObject ability1NO);
         syncParams.ability2.TryGet(out NetworkObject ability2NO);
+        syncParams.dodge.TryGet(out NetworkObject dodgeNO);
 
         P_DefaultPlayerPawn context = contextNO.GetComponent<P_DefaultPlayerPawn>();
 
         meleeAbility = meleeNO.GetComponent<Ability>();
         ability1 = ability1NO.GetComponent<Ability>();
         ability2 = ability2NO.GetComponent<Ability>();
+        dodgeAbility = dodgeNO.GetComponent<Ability>();
 
         meleeAbility.Client_Initialize(context, this);
-        meleeAbility.OnStarted += OnAbilityStarted;
-        meleeAbility.OnFinished += OnAbilityFinished;
-
         ability1.Client_Initialize(context, this);
         ability2.Client_Initialize(context, this);
+        dodgeAbility.Client_Initialize(context, this);
+
+        meleeAbility.OnStarted += OnAbilityStarted;
+        meleeAbility.OnFinished += OnAbilityFinished;
 
         if (IsOwner)
         {
@@ -210,7 +228,7 @@ public class PlayerAttackComponent : PlayerBaseComponent
                 abilityHUD = context.AttachUIWidget(abilityHUDPrefab);
             }
 
-            abilityHUD.Initialize(meleeAbility, ability1, ability2);
+            abilityHUD.Initialize(meleeAbility, ability1, ability2, dodgeAbility);
 
             customGameInstance.OnAbilitiesChanged += OnAbilitiesChanged;
         }
@@ -249,6 +267,11 @@ public class PlayerAttackComponent : PlayerBaseComponent
     private void OnAbility2(InputAction.CallbackContext context)
     {
         AbilityConfig(2);
+    }
+
+    private void OnAbility3(InputAction.CallbackContext context)
+    {
+        AbilityConfig(3);
     }
 
     public override void OnDefaultLeftMouseDown(out bool swallowInput)
@@ -320,6 +343,9 @@ public class PlayerAttackComponent : PlayerBaseComponent
             case 2:
                 ability2.RequestUseAbilityServerRpc(serverParams);
                 break;
+            case 3:
+                dodgeAbility.RequestUseAbilityServerRpc(serverParams);
+                break;
         }
     }    
 
@@ -369,6 +395,10 @@ public class PlayerAttackComponent : PlayerBaseComponent
         {
             return 2;
         }
+        else if (ability == dodgeAbility)
+        {
+            return 3;
+        }
 
         return -1;
     }
@@ -383,6 +413,8 @@ public class PlayerAttackComponent : PlayerBaseComponent
                 return ability1;
             case 2:
                 return ability2;
+            case 3:
+                return dodgeAbility;
         }
         return null;
     }
@@ -399,12 +431,16 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
             if (ability2.IsSpawned)
                 ability2?.GetComponent<NetworkObject>().Despawn(true);
+
+            if (dodgeAbility.IsSpawned)
+                dodgeAbility?.GetComponent<NetworkObject>().Despawn(true);
         }
 
         if (IsClient)
         {
             context.GetDefaultInputMap().FindAction("Ability1").performed -= OnAbility1;
             context.GetDefaultInputMap().FindAction("Ability2").performed -= OnAbility2;
+            context.GetDefaultInputMap().FindAction("Dodge").performed -= OnAbility3;
         }
 
         base.OnNetworkDespawn();

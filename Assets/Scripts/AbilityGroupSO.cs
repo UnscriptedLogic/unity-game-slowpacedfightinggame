@@ -32,4 +32,16 @@ public class AbilityGroupSO : ScriptableObject
         }
         return abilities[index];
     }
+
+    internal AbilitySO GetAbilityByID(int id)
+    {
+        for (int i = 0; i < abilities.Count; i++)
+        {
+            if (abilities[i].ID == id)
+                return abilities[i];
+        }
+
+        Debug.LogWarning("Ability not found in AbilityGroupSO");
+        return null;
+    }
 }

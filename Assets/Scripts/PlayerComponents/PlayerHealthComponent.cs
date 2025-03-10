@@ -39,7 +39,9 @@ public class PlayerHealthComponent : PlayerBaseComponent
     [SerializeField] private HealthModifyDisplay healthModifyDisplayPrefab;
     [SerializeField] private UIC_HealthBarUI healthBarUIPrefab;
     [SerializeField] private GameObject ragdollPrefab;
-    
+
+    private PlayerStateComponent stateComponent;
+
     private NetworkVariable<float> maxHealth = new NetworkVariable<float>(100f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<float> health = new NetworkVariable<float>(100f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
@@ -50,6 +52,8 @@ public class PlayerHealthComponent : PlayerBaseComponent
         base.OnNetworkSpawn();
         health.OnValueChanged += OnHealthChanged;
         maxHealth.OnValueChanged += OnMaxHealthChanged;
+
+        stateComponent = GetComponentInChildren<PlayerStateComponent>();
     }
 
     public override void OnNetworkDespawn()
@@ -91,6 +95,8 @@ public class PlayerHealthComponent : PlayerBaseComponent
 
     public void Server_TakeDamage(DamageSettings damageSettings)
     {
+        if (stateComponent.HasStatusEffect(StatusEffect.Type.Invincible)) return;
+
         health.Value -= damageSettings.damage;
 
         if (health.Value <= 0)

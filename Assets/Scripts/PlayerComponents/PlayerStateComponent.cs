@@ -10,7 +10,8 @@ public struct StatusEffect : IEquatable<StatusEffect>, INetworkSerializable
         Slow,
         Root,
         Silence,
-        TickingDamage
+        TickingDamage,
+        Invincible
     }
 
     public Type type;
@@ -63,17 +64,12 @@ public class PlayerStateComponent : PlayerBaseComponent
     public override void Initialize(P_PlayerPawn context)
     {
         base.Initialize(context);
-
-        statusEffects.OnListChanged += OnStatusEffectsChanged;
-    }
-
-    private void OnStatusEffectsChanged(NetworkListEvent<StatusEffect> newStatus)
-    {
-
     }
 
     public void Server_AddStatusEffect(StatusEffect statusEffect)
     {
+        if (HasStatusEffect(StatusEffect.Type.Invincible)) return;
+
         statusEffects.Add(statusEffect);
     }
 

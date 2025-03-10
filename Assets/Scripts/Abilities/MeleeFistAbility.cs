@@ -158,6 +158,7 @@ public class MeleeFistAbility : Ability
     public override void RequestUseAbilityServerRpc(ServerRpcParams serverParams)
     {
         if (stateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return;
+        if (stateComponent.HasStatusEffect(StatusEffect.Type.Silence)) return;
         if (cooldown.Value > 0) return;
 
         ClientRpcParams clientParams = new ClientRpcParams

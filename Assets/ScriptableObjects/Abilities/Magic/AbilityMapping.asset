@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: AbilityMapping
   m_EditorClassIdentifier: 
   abilityMapping:
+  - ability: {fileID: 11400000, guid: 50006e059bc23d44e86c64011ed6efd6, type: 2}
+    prefab: {fileID: 4310613394676560112, guid: 7b4629389c54d724c8e5a1361e90d7b0,
+      type: 3}
   - ability: {fileID: 11400000, guid: 7ab392be64ec1ea46845163a859595c0, type: 2}
     prefab: {fileID: 3440084195852161547, guid: 2a06577e71ba5cd42827b2ffde24bacc,
       type: 3}

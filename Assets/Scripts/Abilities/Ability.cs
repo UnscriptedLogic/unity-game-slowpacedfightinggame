@@ -119,6 +119,7 @@ public abstract class Ability : NetworkBehaviour
     internal virtual bool CanUseAbility()
     {
         if (stateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return false;
+        if (stateComponent.HasStatusEffect(StatusEffect.Type.Silence)) return false;
         if (cooldown.Value > 0) return false;
         if (uses.Value <= 0) return false;
 

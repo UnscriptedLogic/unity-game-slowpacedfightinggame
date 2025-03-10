@@ -17,3 +17,4 @@ MonoBehaviour:
   abilityName: Default Cubes
   desc: Throws a big cube that stuns and deals damage when coming into contact with
     it. Explodes after a while.
+  demoVideo: {fileID: 32900000, guid: b7a37d20ac0203a4cbcfccddd54c6051, type: 3}

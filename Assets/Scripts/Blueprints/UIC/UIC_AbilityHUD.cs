@@ -32,16 +32,17 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
     [SerializeField] private AbilitySet meleeSet;
     [SerializeField] private AbilitySet ability1Set;
     [SerializeField] private AbilitySet ability2Set;
+    [SerializeField] private AbilitySet dodgeSet;
 
     private CustomGameInstance customGameInstance;
 
-    public void ReInitialize(Ability meleeAbility, Ability ability1, Ability ability2)
+    public void ReInitialize(Ability meleeAbility, Ability ability1, Ability ability2, Ability dodge)
     {
         DeInitialize();
-        Initialize(meleeAbility, ability1, ability2);
+        Initialize(meleeAbility, ability1, ability2, dodge);
     }
 
-    public void Initialize(Ability meleeAbility, Ability ability1, Ability ability2)
+    public void Initialize(Ability meleeAbility, Ability ability1, Ability ability2, Ability dodge)
     {
         customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
 
@@ -50,6 +51,7 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
         meleeSet.SetActive(false);
         ability1Set.SetActive(false);
         ability2Set.SetActive(false);
+        dodgeSet.SetActive(false);
 
         ability1Set.AbilityIcon.sprite = customGameInstance.AbilityMap.GetAbilitySO(ability1).Icon;
         ability2Set.AbilityIcon.sprite = customGameInstance.AbilityMap.GetAbilitySO(ability2).Icon;
@@ -66,6 +68,8 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
 
         ability2.cooldown.OnValueChanged += OnAbility2Cooldown;
         ability2.uses.OnValueChanged += OnAbility2Uses;
+
+        dodge.cooldown.OnValueChanged += OnDodgeCooldown;
     }
 
     public void DeInitialize()
@@ -118,6 +122,13 @@ public class UIC_AbilityHUD : UCanvasController, ICanvasController
     private void OnAbility2Uses(int previousValue, int newValue)
     {
         ability2Set.CounterTMP.text = newValue.ToString();
+    }
+
+    private void OnDodgeCooldown(float previousValue, float newValue)
+    {
+        dodgeSet.SetActive(newValue > 0f);
+        dodgeSet.CooldownImg.fillAmount = newValue / 1f;
+        dodgeSet.CooldownTMP.text = newValue.ToString("F1");
     }
 
     private void Update()

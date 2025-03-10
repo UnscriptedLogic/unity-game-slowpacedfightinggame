@@ -32,9 +32,7 @@ public class DefaultCubeAbility : Ability
     [ServerRpc(RequireOwnership = false)]
     public override void RequestUseAbilityServerRpc(ServerRpcParams serverParams)
     {
-        if (stateComponent.HasStatusEffect(StatusEffect.Type.Stun)) return;
-        if (cooldown.Value > 0) return;
-        if (uses.Value <= 0) return;
+        if (!CanUseAbility()) return;
 
         ClientRpcParams clientParams = new ClientRpcParams
         {

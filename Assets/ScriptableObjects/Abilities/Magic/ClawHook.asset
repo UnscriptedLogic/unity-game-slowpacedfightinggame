@@ -17,3 +17,4 @@ MonoBehaviour:
   abilityName: Claw Hook
   desc: Throws a claw that snags and stuns the first enemy it comes into contact
     with and pulls them back to you.
+  demoVideo: {fileID: 32900000, guid: 64ede4daa29653942a1f6dbe1e7efc44, type: 3}
