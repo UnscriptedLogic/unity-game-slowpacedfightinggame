@@ -143,8 +143,6 @@ public class MeleeFistAbility : Ability
     [ClientRpc]
     private void OnHitClientRpc()
     {
-        Debug.Log(uses == null);
-
         if (uses.Value == 2)
         {
             audioComponent.PlayAudio(hitSFXes[1], 0.5f);

@@ -22,3 +22,6 @@ MonoBehaviour:
   - ability: {fileID: 11400000, guid: 3137d8d0fabc53a4cb5b34f03f5d3cb7, type: 2}
     prefab: {fileID: 8120211396037074716, guid: f29002cdc3f6168439b50cf047b52242,
       type: 3}
+  - ability: {fileID: 11400000, guid: 28f9f32984d57bd43bad815a48bb0c5b, type: 2}
+    prefab: {fileID: 2596176429982396462, guid: 87028d5415d6db543a66dd333546ddce,
+      type: 3}

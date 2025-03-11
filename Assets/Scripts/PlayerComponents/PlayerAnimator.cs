@@ -49,6 +49,8 @@ public class PlayerAnimator : PlayerBaseComponent
     private AnimationClipOverrides clipOverrides;
     private CustomGameInstance customGameInstance;
 
+    private bool wasStunned;
+
     public Animator Animator => animator;
     public NetworkAnimator NetworkAnimator => networkAnimator;
 
@@ -68,14 +70,12 @@ public class PlayerAnimator : PlayerBaseComponent
 
     private void OnAbility1Changed(int previousValue, int newValue)
     {
-        clipOverrides["Ability1Upper"] = customGameInstance.AbilityMap.GetAbilityByID(newValue).AbilityAnimation;
-        overrideController.ApplyOverrides(clipOverrides);
+        SetAbility(newValue, 1);
     }
 
     private void OnAbility2Changed(int previousValue, int newValue)
     {
-        clipOverrides["Ability2Upper"] = customGameInstance.AbilityMap.GetAbilityByID(newValue).AbilityAnimation;
-        overrideController.ApplyOverrides(clipOverrides);
+        SetAbility(newValue, 2);
     }
 
     public override void OnDestroy()
@@ -96,12 +96,20 @@ public class PlayerAnimator : PlayerBaseComponent
         clipOverrides = new AnimationClipOverrides(overrideController.overridesCount);
         overrideController.GetOverrides(clipOverrides);
 
-        clipOverrides["Ability1Upper"] = customGameInstance.AbilityMap.GetAbilityByID(attackComponent.ability1Id.Value).AbilityAnimation;
-        clipOverrides["Ability2Upper"] = customGameInstance.AbilityMap.GetAbilityByID(attackComponent.ability2Id.Value).AbilityAnimation;
-        overrideController.ApplyOverrides(clipOverrides);
+        SetAbility(attackComponent.ability1Id.Value, 1);
+        SetAbility(attackComponent.ability2Id.Value, 2);
 
         attackComponent.ability1Id.OnValueChanged += OnAbility1Changed;
         attackComponent.ability2Id.OnValueChanged += OnAbility2Changed;
+    }
+
+    private void SetAbility(int id, int abilityNumber)
+    {
+        Ability ability = customGameInstance.AbilityMap.GetAbilityByID(id);
+        AnimationsSO.AnimationSet abilitySet = allAnimationsContainer.GetAnimationSetFromAbility(ability);
+        string abilityLayer = abilitySet.AnimationType == AnimationsSO.AnimationType.Upper ? $"Ability{abilityNumber}Upper" : $"Ability{abilityNumber}Lower";
+        clipOverrides[abilityLayer] = ability.AbilityAnimation;
+        overrideController.ApplyOverrides(clipOverrides);
     }
 
     private void StatusEffects_OnListChanged(NetworkListEvent<StatusEffect> changeEvent)
@@ -110,12 +118,18 @@ public class PlayerAnimator : PlayerBaseComponent
         {
             networkAnimator.SetTrigger("LowerStunned");
             networkAnimator.SetTrigger("UpperStunned");
+
+            wasStunned = true;
         }
 
-        if (playerStateComponent.StatusEffects.Count <= 0)
+        if (wasStunned)
         {
-            networkAnimator.SetTrigger("FinishLowerStun");
-            networkAnimator.SetTrigger("FinishUpperStun");
+            if (!playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun))
+            {
+                networkAnimator.SetTrigger("FinishLowerStun");
+                networkAnimator.SetTrigger("FinishUpperStun");
+                wasStunned = false;
+            }
         }
     }
 
@@ -150,5 +164,10 @@ public class PlayerAnimator : PlayerBaseComponent
     internal void Server_AbilityUpper(int abilityIndex)
     {
         networkAnimator.SetTrigger($"Ability{abilityIndex}Upper");
+    }
+
+    internal void Server_AbilityLower(int abilityIndex)
+    {
+        networkAnimator.SetTrigger($"Ability{abilityIndex}Lower");
     }
 }

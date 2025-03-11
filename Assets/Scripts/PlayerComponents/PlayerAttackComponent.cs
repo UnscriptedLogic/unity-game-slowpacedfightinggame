@@ -438,6 +438,8 @@ public class PlayerAttackComponent : PlayerBaseComponent
 
         if (IsClient)
         {
+            if (context == null) return;
+
             context.GetDefaultInputMap().FindAction("Ability1").performed -= OnAbility1;
             context.GetDefaultInputMap().FindAction("Ability2").performed -= OnAbility2;
             context.GetDefaultInputMap().FindAction("Dodge").performed -= OnAbility3;

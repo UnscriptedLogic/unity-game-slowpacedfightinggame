@@ -104,4 +104,16 @@ public class PlayerStateComponent : PlayerBaseComponent
         }
         return false;
     }
+
+    internal void Server_RemoveStatusEffect(StatusEffect.Type status)
+    {
+        for (int i = statusEffects.Count - 1; i >= 0; i--)
+        {
+            if (statusEffects[i].type == status)
+            {
+                statusEffects.Add(statusEffects[i]);
+                return;
+            }
+        }
+    }
 }

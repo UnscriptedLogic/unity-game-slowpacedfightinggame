@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -15,9 +16,13 @@ public class DefaultCube : NetworkBehaviour
     private ulong sender;
     private bool called = false;
 
+    [SerializeField] private List<P_DefaultPlayerPawn> contacted;
+
     internal void Server_Initialize(ulong sender)
     {
         this.sender = sender;
+
+        contacted = new List<P_DefaultPlayerPawn>();
     }
 
     private void Update()
@@ -91,6 +96,8 @@ public class DefaultCube : NetworkBehaviour
         {
             if (other.TryGetComponent(out PlayerHealthComponent healthComponent))
             {
+                if (contacted.Contains(healthComponent.GetComponentInParent<P_DefaultPlayerPawn>())) return;
+
                 if (other.GetComponentInParent<NetworkObject>().OwnerClientId == sender) return;
 
                 healthComponent.Server_TakeDamage(new DamageSettings()
@@ -110,6 +117,8 @@ public class DefaultCube : NetworkBehaviour
                     duration = 1f,
                 });
             }
+
+            contacted.Add(other.GetComponentInParent<P_DefaultPlayerPawn>());
         }
     }
 }

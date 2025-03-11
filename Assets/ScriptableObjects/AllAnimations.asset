@@ -13,5 +13,9 @@ MonoBehaviour:
   m_Name: AllAnimations
   m_EditorClassIdentifier: 
   allAnimations:
-  - {fileID: 7400000, guid: 53a99c4afa65abe489796bceefc059d6, type: 2}
-  - {fileID: 7400000, guid: 550488a8fcdfe7e498f2f40a857aa7db, type: 2}
+  - animation: {fileID: 7400000, guid: 53a99c4afa65abe489796bceefc059d6, type: 2}
+    animationType: 0
+  - animation: {fileID: 7400000, guid: 550488a8fcdfe7e498f2f40a857aa7db, type: 2}
+    animationType: 0
+  - animation: {fileID: 7400000, guid: cd363eff076b5664f88fc38e1a46f43d, type: 2}
+    animationType: 1

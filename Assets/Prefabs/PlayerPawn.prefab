@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1392218338
+  GlobalObjectIdHash: 235339980
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -110,9 +110,9 @@ MonoBehaviour:
     ShiftPriority: 0
     InteractPriority: 0
   movementSettings:
-    speed: 5
-    sprintMultiplier: 1.5
-    jumpForce: 10
+    speed: 6
+    sprintMultiplier: 1
+    jumpForce: 600
     jumpCount: 1
     hasJumped: 0
     waitingForLanding: 0
@@ -152,7 +152,7 @@ MonoBehaviour:
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
-  Interpolate: 1
+  Interpolate: 0
   SlerpPosition: 0
 --- !u!114 &8655027248585669691
 MonoBehaviour:

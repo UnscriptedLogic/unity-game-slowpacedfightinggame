@@ -1,5 +1,6 @@
 using System;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 
 public class Hook : NetworkBehaviour
@@ -16,14 +17,12 @@ public class Hook : NetworkBehaviour
     private Vector3 senderPos;
 
     private Transform target;
+    private NetworkTransform netTransform;
 
     public void Server_Initialize(ulong sender, Transform senderTransform)
     {
         this.sender = sender;
         this.senderTransform = senderTransform;
-
-        Debug.Log(sender);
-        Debug.Log(senderTransform);
     }
 
     internal void Client_Initialize(Transform parent)
@@ -33,11 +32,29 @@ public class Hook : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (target != null) return;
+
         other.TryGetComponent(out NetworkObject networkObject);
         if (networkObject == null) return;
         if (networkObject.OwnerClientId == sender) return;
 
-        audioSource.PlayOneShot(hookLandedSFX);
+        if (IsClient)
+        {
+            if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+            {
+                P_PlayerPawn player = other.GetComponentInParent<P_PlayerPawn>();
+
+                if (player.TryGetComponent(out netTransform))
+                {
+                    audioSource.PlayOneShot(hookLandedSFX);
+
+                    DoSyncTransform(netTransform, false);
+                    player.transform.SetParent(transform);
+
+                    target = player.transform;
+                }
+            }
+        }
 
         if (!IsServer) return;
         if (travelTime <= 0) return;
@@ -60,6 +77,16 @@ public class Hook : NetworkBehaviour
 
             target = other.transform;
         }
+    }
+
+    private void DoSyncTransform(NetworkTransform netTransform, bool value)
+    {
+        netTransform.SyncPositionX = value;
+        netTransform.SyncPositionY = value;
+        netTransform.SyncPositionZ = value;
+        netTransform.SyncRotAngleX = value;
+        netTransform.SyncRotAngleY = value;
+        netTransform.SyncRotAngleZ = value;
     }
 
     private void Update()
@@ -104,11 +131,25 @@ public class Hook : NetworkBehaviour
                         {
                             targetNetworkObject.TrySetParent((Transform)null);
                         }
+
+                        HookReturnedClientRpc();
+                        target = null;
                     }
 
                     Destroy(gameObject);
                 }
             }
+        }
+    }
+
+
+    [ClientRpc]
+    private void HookReturnedClientRpc()
+    {
+        if (netTransform != null)
+        {
+            target.transform.SetParent(null);
+            DoSyncTransform(netTransform, true);
         }
     }
 }

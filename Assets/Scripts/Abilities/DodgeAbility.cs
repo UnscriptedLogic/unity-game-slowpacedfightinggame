@@ -40,13 +40,13 @@ public class DodgeAbility : Ability
 
         stateComponent.Server_AddStatusEffect(new StatusEffect()
         {
-            type = StatusEffect.Type.Invincible,
+            type = StatusEffect.Type.Silence,
             duration = dodgeDuration
         });
 
         stateComponent.Server_AddStatusEffect(new StatusEffect()
         {
-            type = StatusEffect.Type.Silence,
+            type = StatusEffect.Type.Invincible,
             duration = dodgeDuration
         });
 
