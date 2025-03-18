@@ -8,7 +8,20 @@ public class HookAbility : Ability
     [SerializeField] private Hook hookPrefab;
     [SerializeField] private float castDelay;
 
+    [SerializeField] private AnimationClip pullingAnim;
+    [SerializeField] private AnimationClip slamInitiateAnim;
+    [SerializeField] private AnimationClip slammingDownAnim;
+    [SerializeField] private AnimationClip slamAnim;
+
     private ClientRpcParams clientRpcParams;
+    private MovementComponent movementComponent;
+
+    internal override void Client_Initialize(P_PlayerPawn context, PlayerAttackComponent attackComponent)
+    {
+        base.Client_Initialize(context, attackComponent);
+
+        movementComponent = context.GetComponent<MovementComponent>();
+    }
 
     internal override void Server_Initialize(P_DefaultPlayerPawn context)
     {
@@ -17,6 +30,8 @@ public class HookAbility : Ability
         if (IsServer)
         {
             uses.Value = 1;
+
+            movementComponent = context.GetComponent<MovementComponent>();
         }
     }
 
@@ -49,12 +64,13 @@ public class HookAbility : Ability
     {
         if (!IsServer) return;
 
-        GameObject hookObject = Instantiate(hookPrefab.gameObject, PlayerRoot.position + (PlayerRoot.rotation * createOffset), PlayerRoot.rotation);
+        Quaternion rotation = movementComponent.IsAirborne ? movementComponent.CameraRefTransform.rotation : PlayerRoot.rotation;
+        GameObject hookObject = Instantiate(hookPrefab.gameObject, PlayerRoot.position + (rotation * createOffset), rotation);
         NetworkObject networkObject = hookObject.GetComponent<NetworkObject>();
-        networkObject.Spawn();
+        networkObject.SpawnWithOwnership(OwnerClientId);
 
         Hook hook = hookObject.GetComponent<Hook>();
-        hook.Server_Initialize(OwnerClientId, PlayerRoot);
+        hook.Server_Initialize(OwnerClientId, PlayerRoot, movementComponent.IsAirborne, this);
 
         HookThrownClientRpc(networkObject);
     }
@@ -74,5 +90,4 @@ public class HookAbility : Ability
             hook.Client_Initialize(PlayerRoot);
         }
     }
-
 }

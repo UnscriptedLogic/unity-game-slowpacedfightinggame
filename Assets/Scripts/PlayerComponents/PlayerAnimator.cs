@@ -50,6 +50,7 @@ public class PlayerAnimator : PlayerBaseComponent
     private CustomGameInstance customGameInstance;
 
     private bool wasStunned;
+    private bool inputToggled;
 
     public Animator Animator => animator;
     public NetworkAnimator NetworkAnimator => networkAnimator;
@@ -60,12 +61,18 @@ public class PlayerAnimator : PlayerBaseComponent
     private void Start()
     {
         customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
+        MonoBehaviourExtensions.OnToggleInput += OnToggleInput;
 
         if (IsServer)
         {
             playerStateComponent = transform.parent.GetComponent<PlayerStateComponent>();
             playerStateComponent.StatusEffects.OnListChanged += StatusEffects_OnListChanged;
         }
+    }
+
+    private void OnToggleInput(bool value)
+    {
+        inputToggled = value;
     }
 
     private void OnAbility1Changed(int previousValue, int newValue)
@@ -137,6 +144,8 @@ public class PlayerAnimator : PlayerBaseComponent
     {
         base.OnMove(inputDir, out swallowInput);
 
+        if (!inputToggled) return;
+
         AnimateWalkServerRpc(inputDir);
     }
 
@@ -169,5 +178,14 @@ public class PlayerAnimator : PlayerBaseComponent
     internal void Server_AbilityLower(int abilityIndex)
     {
         networkAnimator.SetTrigger($"Ability{abilityIndex}Lower");
+    }
+
+    internal void Server_PlayAnimation(AnimationClip animClip)
+    {
+        AnimationsSO.AnimationSet animSO = allAnimationsContainer.GetAnimationSet(animClip);
+        string layer = animSO.AnimationType == AnimationsSO.AnimationType.Upper ? "Upper" : "Lower";
+        clipOverrides[$"MiscAbility{layer}"] = animSO.Animation;
+        overrideController.ApplyOverrides(clipOverrides);
+        networkAnimator.SetTrigger($"MiscAbility{layer}");
     }
 }

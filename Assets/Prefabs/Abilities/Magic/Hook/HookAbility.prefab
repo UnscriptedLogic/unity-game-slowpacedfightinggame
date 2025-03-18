@@ -76,3 +76,7 @@ MonoBehaviour:
   hookPrefab: {fileID: 2638882202443081225, guid: de2449495cf800340bacb189e7b02586,
     type: 3}
   castDelay: 0
+  pullingAnim: {fileID: 7400000, guid: cd4b63e40ce1e0e46b912e33b2a8d41b, type: 2}
+  slamInitiateAnim: {fileID: 7400000, guid: a6503898596c8d046a3a73022b86e61d, type: 2}
+  slammingDownAnim: {fileID: 7400000, guid: a8c5f37f9db0c824f9232ead278a6f88, type: 2}
+  slamAnim: {fileID: 7400000, guid: fe2fb228f0bfe14429658e3d3722c408, type: 2}

@@ -12,9 +12,13 @@ public class AbilitySO : ScriptableObject
     [SerializeField, TextArea(5, 10)] private string desc;
     [SerializeField] private VideoClip demoVideo;
 
+    [Header("Misc")]
+    [SerializeField] private bool excludeFromDisplay;
+
     public Sprite Icon => icon;
     public int ID => abilityId;
     public string AbilityName => abilityName;
     public string Desc => desc;
     public VideoClip DemoVideo => demoVideo;
+    public bool ExcludeFromDisplay => excludeFromDisplay;
 }

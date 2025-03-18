@@ -16,3 +16,5 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 88d281d1a073daf4b86a08f3503379ef, type: 3}
   abilityName: Dodge
   desc: Become invincible for a short period of time.
+  demoVideo: {fileID: 0}
+  excludeFromDisplay: 1

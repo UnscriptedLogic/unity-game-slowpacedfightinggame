@@ -8,9 +8,12 @@ using UnscriptedEngine;
 
 public class MovementComponent : PlayerBaseComponent
 {
+    private CustomGameInstance customGameInstance;
+
     [SerializeField] private MovementSettings movementSettings;
     [SerializeField] private Transform cameraAnchor;
     [SerializeField] private float cameraSens;
+    [SerializeField] private ClientNetworkTransform cameraRefTransform;
 
     [SerializeField] private List<AudioClip> walkSFXes;
     [SerializeField] private float walkSFXInterval;
@@ -26,10 +29,24 @@ public class MovementComponent : PlayerBaseComponent
 
     public MovementSettings MoveSettings => movementSettings;
     public float UnitSpeed => unitSpeed;
+    public Transform CameraRefTransform => cameraRefTransform.transform;
 
     public bool isGrounded => Physics.Raycast(transform.position, Vector3.down, 1.2f);
     public bool isMoving => movementSettings.InputDir.magnitude > 0.01f && isGrounded;
     public GameObject StandingOn => isGrounded ? Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit) ? hit.collider.gameObject : null : null;
+    public bool IsAirborne
+    {
+        get
+        {
+            float distance = 0f;
+            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit))
+            {
+                distance = hit.distance;
+            }
+
+            return distance > 4f && !isGrounded;
+        }
+    }
 
     //Server Variables
     [System.Serializable]
@@ -74,6 +91,8 @@ public class MovementComponent : PlayerBaseComponent
     {
         base.Initialize(context);
 
+        customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
+
         playerAudioComponent = context.GetPlayerComponent<PlayerAudioComponent>();
         playerStateComponent = context.GetPlayerComponent<PlayerStateComponent>();
 
@@ -90,6 +109,9 @@ public class MovementComponent : PlayerBaseComponent
         }
 
         initialized = true;
+
+        cameraSens = customGameInstance.settings.mouseSensitivity.Value / 100f;
+        customGameInstance.settings.mouseSensitivity.OnValueChanged += (float value) => cameraSens = value / 100f;
 
         MonoBehaviourExtensions.OnToggleInput += OnToggleInput;
     }
@@ -139,6 +161,8 @@ public class MovementComponent : PlayerBaseComponent
                 movementSettings.ResetJumpCounter();
             }
         }
+
+        cameraRefTransform.transform.forward = Camera.main.transform.forward;
 
         if (!isGrounded && movementSettings.hasJumped)
         {
@@ -299,5 +323,11 @@ public class MovementComponent : PlayerBaseComponent
         context.GetDefaultInputMap().FindAction("MouseDelta").performed -= OnMouseDelta;
 
         base.DeInitialize(context);
+    }
+
+    internal void SetRotation(Vector3 forward)
+    {
+        transform.rotation = Quaternion.LookRotation(forward);
+        Debug.Log("Rotation Set");
     }
 }

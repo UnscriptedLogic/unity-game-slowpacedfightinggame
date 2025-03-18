@@ -15,6 +15,13 @@ MonoBehaviour:
   abilityId: 1001
   icon: {fileID: 21300000, guid: 274c93aa7801f5c458fa00244425292d, type: 3}
   abilityName: Claw Hook
-  desc: Throws a claw that snags and stuns the first enemy it comes into contact
+  desc: 'Throws a claw that snags and stuns the first enemy it comes into contact
     with and pulls them back to you.
+
+
+    [While Airborne]
+
+    Claw flies faster
+    and free aim is enabled, allowing you to throw your hook down at unsuspecting
+    victims.'
   demoVideo: {fileID: 32900000, guid: 64ede4daa29653942a1f6dbe1e7efc44, type: 3}

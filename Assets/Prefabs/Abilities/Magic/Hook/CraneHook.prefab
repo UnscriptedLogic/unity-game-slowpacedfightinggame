@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3723538524
+  GlobalObjectIdHash: 1436753195
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -72,6 +72,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   travelTime: 1
   travelSpeed: 20
+  airborneSpeed: 50
   lineRenderer: {fileID: 3736643438666416328}
   hookLandedSFX: {fileID: 8300000, guid: 3cc953a6a43ea6444b05bf38f73ed391, type: 3}
   audioSource: {fileID: 2790733625678426618}

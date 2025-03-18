@@ -60,4 +60,17 @@ public class AnimationsSO : ScriptableObject
         }
         return null;
     }
+
+    internal AnimationSet GetAnimationSet(AnimationClip animClip)
+    {
+        foreach (AnimationSet animationSet in allAnimations)
+        {
+            if (animationSet.Animation == animClip)
+            {
+                return animationSet;
+            }
+        }
+
+        return null;
+    }
 }

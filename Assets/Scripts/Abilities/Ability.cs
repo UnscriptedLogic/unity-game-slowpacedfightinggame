@@ -139,8 +139,14 @@ public abstract class Ability : NetworkBehaviour
         return clientParams;
     }
 
+    /// <summary>
+    /// Request to use the ability on the server. Remember that you cannot send any data from the client to the server.
+    /// This is to prevent cheating. Any data that needs to be in this function should already be on the server.
+    /// </summary>
+    /// <param name="serverParams"></param>
+
     [ServerRpc(RequireOwnership = false)]
-    public virtual void RequestUseAbilityServerRpc(ServerRpcParams serverParams) { }
+    public virtual void RequestUseAbilityServerRpc(ServerRpcParams serverParams) { }    
 
     internal virtual void UpdateTick() { }
     internal virtual void FixedUpdateTick() { }

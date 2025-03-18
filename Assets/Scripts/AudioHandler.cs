@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnscriptedEngine;
 
 public class AudioHandler : MonoBehaviour
 {
@@ -37,6 +38,18 @@ public class AudioHandler : MonoBehaviour
     private void Awake()
     {
         instance = this;
+    }
+
+    private void Start()
+    {
+        CustomGameInstance gameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
+        masterVolume = gameInstance.settings.volume.Value;
+        gameInstance.settings.volume.OnValueChanged += OnVolumeChanged;
+    }
+
+    private void OnVolumeChanged(float obj)
+    {
+        masterVolume = obj;
     }
 
     private float GetVolume(AudioType type)

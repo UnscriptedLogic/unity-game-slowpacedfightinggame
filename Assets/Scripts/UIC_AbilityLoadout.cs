@@ -35,6 +35,8 @@ public class UIC_AbilityLoadout : UCanvasController
 
         foreach (AbilitySO ability in abilityGroup.List)
         {
+            if (ability.ExcludeFromDisplay) return;
+
             AbilityButton abilityButton = Instantiate(abilityButtonPrefab, contentParent);
             abilityButton.SetButton(ability);
             abilityButton.OnHoverEnter += () => ShowAbilityView(ability);
