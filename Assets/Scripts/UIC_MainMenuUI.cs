@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnscriptedEngine;
@@ -23,38 +24,64 @@ public class UIC_MainMenuUI : UCanvasController
         }
     }
 
+    [SerializeField] private TextMeshProUGUI versionTMP;
+
     [SerializeField] private List<UISet> uiSets;
-    [SerializeField] private Queue<UISet> activatedSets;
+    [SerializeField] private Stack<UISet> activatedSets;
+
+    [Header("Debug")]
+    [SerializeField] private int debugIndex;
 
     private void Start()
     {
-        uiSets = new List<UISet>();
-        activatedSets = new Queue<UISet>();
+        versionTMP.text = $"v{Application.version}";
+
+        activatedSets = new Stack<UISet>();
+
+        //Assumes the first set is the default set
+        activatedSets.Push(uiSets[0]);
     }
 
-    private void AttachSet(string id)
+    public void AttachSet(string id)
     {
         if (activatedSets.Count > 0)
         {
-            UISet set = activatedSets.Peek();
-            set.SetActive(false);
+            activatedSets.Peek().SetActive(false);
         }
 
         for (int i = 0; i < uiSets.Count; i++)
         {
-            UISet set = uiSets[i];
-            if (set == null) continue;
-
-            set.SetActive(true);
-            activatedSets.Enqueue(set);
+            if (uiSets[i].ID == id)
+            {
+                uiSets[i].SetActive(true);
+                activatedSets.Push(uiSets[i]);
+                break;
+            }
         }
     }
 
-    private void DettachTopSet()
+    public void DettachTopSet()
     {
         if (activatedSets.Count <= 0) return;
 
-        activatedSets.Dequeue().SetActive(false);
+        activatedSets.Pop().SetActive(false);
         activatedSets.Peek().SetActive(true);
+    }
+
+    private void ShowAtIndex(int index)
+    {
+        foreach (var set in uiSets)
+        {
+            set.SetActive(false);
+        }
+
+        uiSets[index].SetActive(true);
+    }
+
+    private void OnValidate()
+    {
+        if (debugIndex < 0) debugIndex = 0;
+        if (debugIndex >= uiSets.Count) debugIndex = uiSets.Count - 1;
+        ShowAtIndex(debugIndex);
     }
 }
