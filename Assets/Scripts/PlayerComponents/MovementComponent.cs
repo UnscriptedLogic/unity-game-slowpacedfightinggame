@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -53,26 +54,41 @@ public class MovementComponent : PlayerBaseComponent
     private class ServerMovementData : INetworkSerializable
     {
         public int tick;
-        public Vector2 input;
-        public Vector3 position;
+        public Vector3 input;
+        public Vector3 rotation;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             serializer.SerializeValue(ref tick);
             serializer.SerializeValue(ref input);
+            serializer.SerializeValue(ref rotation);
+        }
+    }
+
+    [System.Serializable]
+    private struct ClientMovementData : INetworkSerializable
+    {
+        public Vector3 position;
+        public Vector3 rotation;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
             serializer.SerializeValue(ref position);
+            serializer.SerializeValue(ref rotation);
         }
     }
 
     private int currentTick = 0;
     private float time;
     private float tickTime;
+    private bool reconcilliating;
 
     private const int TICKS_PER_SECOND = 60;
     private const int BUFFER_SIZE = 1024;
     private ServerMovementData[] clientMovementData = new ServerMovementData[BUFFER_SIZE];
 
     private bool inputToggled = true;
+    private ServerMovementData movementData;
 
     private void Awake()
     {
@@ -109,6 +125,7 @@ public class MovementComponent : PlayerBaseComponent
         }
 
         initialized = true;
+        reconcilliating = false;
 
         cameraSens = customGameInstance.settings.mouseSensitivity.Value / 100f;
         customGameInstance.settings.mouseSensitivity.OnValueChanged += (float value) => cameraSens = value / 100f;
@@ -124,6 +141,7 @@ public class MovementComponent : PlayerBaseComponent
     private void OnMouseDelta(InputAction.CallbackContext context)
     {
         if (!inputToggled) return;
+        if (reconcilliating) return;
 
         Vector2 mouseDelta = context.ReadValue<Vector2>();
 
@@ -173,126 +191,154 @@ public class MovementComponent : PlayerBaseComponent
         time += Time.deltaTime;
     }
 
-    public override void FixedUpdateTick(out bool swallowTick)
+    private void Update()
     {
-        swallowTick = false;
-
-        if (!inputToggled) return;
-
-        while (time > tickTime)
+        if (IsServer)
         {
-            time -= tickTime;
-            currentTick++;
-
-            if (movementSettings.InputDir.magnitude > 0.01f)
+            while (time > tickTime)
             {
-                if (!playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun))
-                {
-                    //move player using rigidbody
-                    float efficiency = isGrounded ? 1f : 0.5f;
-                    float speed = shiftPressed ? movementSettings.speed * movementSettings.sprintMultiplier : movementSettings.speed;
-                    rb.MovePosition(transform.position + (transform.TransformDirection(movementSettings.InputDir) * speed * Time.fixedDeltaTime));
-                }
+                time -= tickTime;
+                currentTick++;
+            }
+        }
+    }
 
-                if (isGrounded && walkIntervalTimer <= 0f)
-                {
-                    walkIntervalTimer = walkSFXInterval;
+    private void FixedUpdate()
+    {
+        if (IsServer)
+        {
+            Server_FixedUpdate();
+        }
 
-                    playerAudioComponent.PlayAudio(walkSFXes.GetRandomElement(), 0.5f);
-                }
+        if (IsClient)
+        {
+            Client_FixedUpdate();
 
-                walkIntervalTimer -= Time.fixedDeltaTime;
+            if (IsOwner)
+            {
+                LocalClient_FixedUpdate();
+            }
+        }
+    }
+
+    private void Server_FixedUpdate()
+    {
+        MovementLogic(movementData.input);
+
+        transform.rotation = Quaternion.Euler(movementData.rotation);
+    }
+
+    private void Client_FixedUpdate()
+    {
+
+    }
+
+    private void LocalClient_FixedUpdate()
+    {
+        if (!inputToggled) return;
+        if (reconcilliating) return;
+
+        MovementLogic(movementSettings.InputDir);
+
+        clientMovementData[currentTick % BUFFER_SIZE] = new ServerMovementData
+        {
+            tick = currentTick,
+            input = movementSettings.InputDir,
+            rotation = transform.rotation.eulerAngles
+        };
+
+        PlayerMovementServerRpc(clientMovementData[currentTick % BUFFER_SIZE]);
+    }
+
+    //public override void FixedUpdateTick(out bool swallowTick)
+    //{
+    //    swallowTick = false;
+
+    //    if (!inputToggled) return;
+
+    //    while (time > tickTime)
+    //    {
+    //        time -= tickTime;
+    //        currentTick++;
+
+    //        MovementLogic();
+
+    //        if (IsHost) continue;
+
+    //        clientMovementData[currentTick % BUFFER_SIZE] = new ServerMovementData
+    //        {
+    //            tick = currentTick,
+    //            input = movementSettings.InputDir,
+    //            position = transform.position
+    //        };
+
+    //        if (currentTick < 2) return;
+
+    //        ServerRpcParams serverParams = new ServerRpcParams
+    //        {
+    //            Receive = new ServerRpcReceiveParams
+    //            {
+    //                SenderClientId = NetworkManager.LocalClientId
+    //            }
+    //        };
+
+    //        PlayerMovementServerRpc(clientMovementData[currentTick % BUFFER_SIZE], clientMovementData[(currentTick - 1) % BUFFER_SIZE], serverParams);
+    //    }
+    //}
+
+    private void MovementLogic(Vector3 inputDir)
+    {
+        if (inputDir.magnitude > 0.01f)
+        {
+            if (!playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun))
+            {
+                //move player using rigidbody
+                float efficiency = isGrounded ? 1f : 0.5f;
+                float speed = shiftPressed ? movementSettings.speed * movementSettings.sprintMultiplier : movementSettings.speed;
+                rb.MovePosition(transform.position + (transform.TransformDirection(inputDir) * speed * Time.fixedDeltaTime));
             }
 
-            if (IsHost) continue;
-
-            clientMovementData[currentTick % BUFFER_SIZE] = new ServerMovementData
+            if (isGrounded && walkIntervalTimer <= 0f)
             {
-                tick = currentTick,
-                input = movementSettings.InputDir,
-                position = transform.position
-            };
+                walkIntervalTimer = walkSFXInterval;
+                playerAudioComponent.PlayAudio(walkSFXes.GetRandomElement(), 0.5f);
+            }
 
-            if (currentTick < 2) return;
-
-            ServerRpcParams serverParams = new ServerRpcParams
-            {
-                Receive = new ServerRpcReceiveParams
-                {
-                    SenderClientId = NetworkManager.LocalClientId
-                }
-            };
-
-            PlayerMovementServerRpc(clientMovementData[currentTick % BUFFER_SIZE], clientMovementData[(currentTick - 1) % BUFFER_SIZE], serverParams);
+            walkIntervalTimer -= Time.fixedDeltaTime;
         }
     }
-
 
     [ServerRpc(RequireOwnership = false)]
-    private void PlayerMovementServerRpc(ServerMovementData currentData, ServerMovementData lastData, ServerRpcParams serverParams = default)
+    private void PlayerMovementServerRpc(ServerMovementData currentData, ServerRpcParams serverParams = default)
     {
-        if (rb == null)
+        movementData = currentData;
+
+        clientMovementData[currentTick % BUFFER_SIZE] = currentData;
+
+        if ((currentTick % 20) == 0)
         {
-            rb = GetComponent<Rigidbody>();
-        }
-
-        Vector3 startPos = transform.position;
-
-        if (lastData == null) return;
-
-
-        Vector3 moveVector = transform.TransformDirection(lastData.input) * movementSettings.speed * Time.fixedDeltaTime;
-        Physics.simulationMode = SimulationMode.Script;
-        transform.position = lastData.position;
-        
-        if (!playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun))
-        {
-            rb.MovePosition(transform.position + (transform.TransformDirection(lastData.input) * movementSettings.speed * Time.fixedDeltaTime));
-        }
-
-        Physics.Simulate(Time.fixedDeltaTime);
-        Vector3 correctPos = transform.position;
-        transform.position = startPos;
-        Physics.simulationMode = SimulationMode.FixedUpdate;
-
-        float distance = Vector3.Distance(correctPos, currentData.position);
-        if (distance > 2f)
-        {
-            Debug.Log($"Position is off: {distance}");
-
-            ClientRpcParams clientParams = new ClientRpcParams
+            ReconciliateClientRpc(new ClientMovementData()
             {
-                Send = new ClientRpcSendParams
-                {
-                    TargetClientIds = new[] { serverParams.Receive.SenderClientId }
-                }
-            };
-
-            ReconciliateClientRpc(currentData.tick, clientParams);
+                position = transform.position,
+                rotation = transform.rotation.eulerAngles
+            });
         }
     }
-
 
     [ClientRpc]
-    private void ReconciliateClientRpc(int activationTick, ClientRpcParams clientParams = default)
+    private void ReconciliateClientRpc(ClientMovementData clientData, ClientRpcParams clientParams = default)
     {
-        Vector3 correctPos = clientMovementData[(activationTick - 1) % BUFFER_SIZE].position;
+        reconcilliating = true;
 
-        Physics.simulationMode = SimulationMode.Script;
-        while (activationTick <= currentTick)
+        if (Vector3.Distance(clientData.position, transform.position) >= 3f)
         {
-            transform.position = correctPos;
-            rb.MovePosition(transform.position + (transform.TransformDirection(clientMovementData[(activationTick - 1) % BUFFER_SIZE].input) * movementSettings.speed * Time.fixedDeltaTime));
-            Physics.Simulate(Time.fixedDeltaTime);
-            correctPos = transform.position;
-            clientMovementData[activationTick % BUFFER_SIZE].position = correctPos;
-            activationTick++;
+            transform.DORotate(clientData.rotation, 0.5f);
+            transform.DOMove(clientData.position, 0.5f);
         }
 
-        Physics.simulationMode = SimulationMode.FixedUpdate;
-        transform.position = correctPos;
+        //should be here for some reason. soft locks if inside of dotween
+        reconcilliating = false;
     }
-
 
     public override void OnShift(bool pressed, out bool swallowInput)
     {
