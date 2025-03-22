@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class CustomGameInstance : UGameInstance
@@ -40,6 +41,43 @@ public class CustomGameInstance : UGameInstance
 
     public event Action<AbilitySO, AbilitySO> OnAbilitiesChanged;
     public event Action<AbilitySO> OnMeleeChanged;
+
+    private int emaPing = -1;
+
+    public int ClientPing(ulong id)
+    {
+        float alpha = 0.1f;
+        int ping = (int)NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetCurrentRtt(NetworkManager.Singleton.ConnectedClients[id].ClientId);
+
+        if (emaPing == -1)
+        {
+            emaPing = ping;
+        }
+        else
+        {
+            emaPing = (int)(alpha * ping + (1 - alpha) * emaPing);
+        }
+
+        return emaPing;
+    }
+
+    public int ServerPing
+    {
+        get
+        {
+            float alpha = 0.1f;
+            int ping = (int)NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetCurrentRtt(NetworkManager.Singleton.NetworkConfig.NetworkTransport.ServerClientId);
+            if (emaPing == -1)
+            {
+                emaPing = ping;
+            }
+            else
+            {
+                emaPing = (int)(alpha * ping + (1 - alpha) * emaPing);
+            }
+            return emaPing;
+        }
+    }
 
     private void Start()
     {

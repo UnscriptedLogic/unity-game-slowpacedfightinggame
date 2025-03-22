@@ -2,9 +2,12 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements.Experimental;
 using UnscriptedEngine;
 
 public class MovementComponent : PlayerBaseComponent
@@ -49,9 +52,26 @@ public class MovementComponent : PlayerBaseComponent
         }
     }
 
+    /// <summary>
+    /// This struct is a point in time in the timeline of the player.
+    /// It's used to let the server remember the path the player took.
+    /// How strict we reconcile is dependant on the ping of the player.
+    /// The higher the ping, the more backwards in time we'll check.
+    /// This is to prevent rubberbanding and overcorrecting.
+    /// </summary>
+    [System.Serializable]
+    public struct ServerClientData
+    {
+        public int tick;
+        public Vector3 position;
+        public Vector3 rotation;
+    }
+
+    private ServerClientData[] server_clientDataBuffer = new ServerClientData[BUFFER_SIZE];
+
     //Server Variables
     [System.Serializable]
-    private class ServerMovementData : INetworkSerializable
+    private class ClientSentMovementData : INetworkSerializable
     {
         public int tick;
         public Vector3 input;
@@ -66,29 +86,64 @@ public class MovementComponent : PlayerBaseComponent
     }
 
     [System.Serializable]
-    private struct ClientMovementData : INetworkSerializable
+    private struct ClientReconcileData : INetworkSerializable
     {
+        public int reconcileDiffTick;
         public Vector3 position;
         public Vector3 rotation;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
+            serializer.SerializeValue(ref reconcileDiffTick);
             serializer.SerializeValue(ref position);
             serializer.SerializeValue(ref rotation);
         }
     }
 
     private int currentTick = 0;
+    private ClientReconcileData client_reconcileData;
     private float time;
     private float tickTime;
-    private bool reconcilliating;
+    private bool isReconciling;
 
     private const int TICKS_PER_SECOND = 60;
     private const int BUFFER_SIZE = 1024;
-    private ServerMovementData[] clientMovementData = new ServerMovementData[BUFFER_SIZE];
+    private ClientSentMovementData[] clientMovementData = new ClientSentMovementData[BUFFER_SIZE];
 
     private bool inputToggled = true;
-    private ServerMovementData movementData;
+    private ClientSentMovementData movementData;
+
+    private int ClientPing => customGameInstance.ClientPing(NetworkObject.OwnerClientId);
+    private int serverPing => customGameInstance.ServerPing;
+
+    /// <summary>
+    /// Should we reconcile the client with the server.
+    /// </summary>
+    private bool ShouldReconcile => ReconcileDist > 1f;
+
+    /// <summary>
+    /// How far back in time do we check for the server to reconcile the client.
+    /// </summary>
+    private int ReconcileTickDiff
+    {
+        get
+        {
+            float ping = IsServer ? ClientPing : serverPing;
+            return Mathf.RoundToInt(ping / 2 / TICKS_PER_SECOND * 100);
+        }
+    }
+
+    /// <summary>
+    /// The tick we should reconcile the client with the server.
+    /// </summary>
+    private int ReconcileTick => currentTick - ReconcileTickDiff;
+
+    /// <summary>
+    /// How far off is the client from the server.
+    /// </summary>
+    private float ReconcileDist => Vector3.Distance(GetLocalReconcileClientData.position, client_reconcileData.position);
+    private int ClientReconcileTick => currentTick - client_reconcileData.reconcileDiffTick;
+    private ServerClientData GetLocalReconcileClientData => server_clientDataBuffer[ClientReconcileTick % BUFFER_SIZE];
 
     private void Awake()
     {
@@ -100,6 +155,35 @@ public class MovementComponent : PlayerBaseComponent
         if (IsServer)
         {
             playerStateComponent = GetComponent<PlayerStateComponent>();
+            customGameInstance = UGameModeBase.instance.GetGameInstance<CustomGameInstance>();
+
+            rb.isKinematic = false;
+        }
+
+        NetworkManager.NetworkTickSystem.Tick += OnNetworkTick;
+    }
+
+    private void OnNetworkTick()
+    {
+        while (time > tickTime)
+        {
+            if (IsServer)
+            {
+                Server_FixedUpdate();
+            }
+
+            if (IsClient)
+            {
+                Client_FixedUpdate();
+
+                if (IsOwner)
+                {
+                    LocalClient_FixedUpdate();
+                }
+            }
+
+            time -= tickTime;
+            currentTick++;
         }
     }
 
@@ -124,13 +208,12 @@ public class MovementComponent : PlayerBaseComponent
             context.GetDefaultInputMap().FindAction("MouseDelta").performed += OnMouseDelta;
         }
 
-        initialized = true;
-        reconcilliating = false;
-
         cameraSens = customGameInstance.settings.mouseSensitivity.Value / 100f;
         customGameInstance.settings.mouseSensitivity.OnValueChanged += (float value) => cameraSens = value / 100f;
 
         MonoBehaviourExtensions.OnToggleInput += OnToggleInput;
+        
+        initialized = true;
     }
 
     private void OnToggleInput(bool obj)
@@ -141,7 +224,7 @@ public class MovementComponent : PlayerBaseComponent
     private void OnMouseDelta(InputAction.CallbackContext context)
     {
         if (!inputToggled) return;
-        if (reconcilliating) return;
+        if (isReconciling) return;
 
         Vector2 mouseDelta = context.ReadValue<Vector2>();
 
@@ -188,106 +271,59 @@ public class MovementComponent : PlayerBaseComponent
         }
 
         prevPosition = transform.position;
-        time += Time.deltaTime;
     }
 
     private void Update()
     {
-        if (IsServer)
-        {
-            while (time > tickTime)
-            {
-                time -= tickTime;
-                currentTick++;
-            }
-        }
+        time += Time.deltaTime;
     }
 
     private void FixedUpdate()
     {
-        if (IsServer)
-        {
-            Server_FixedUpdate();
-        }
 
-        if (IsClient)
-        {
-            Client_FixedUpdate();
-
-            if (IsOwner)
-            {
-                LocalClient_FixedUpdate();
-            }
-        }
     }
 
     private void Server_FixedUpdate()
     {
         MovementLogic(movementData.input);
-
         transform.rotation = Quaternion.Euler(movementData.rotation);
+
+        server_clientDataBuffer[currentTick % BUFFER_SIZE] = new ServerClientData
+        {
+            tick = currentTick,
+            position = transform.position,
+            rotation = transform.rotation.eulerAngles
+        };
     }
 
-    private void Client_FixedUpdate()
-    {
-
-    }
+    private void Client_FixedUpdate() { }
 
     private void LocalClient_FixedUpdate()
     {
         if (!inputToggled) return;
-        if (reconcilliating) return;
 
         MovementLogic(movementSettings.InputDir);
 
-        clientMovementData[currentTick % BUFFER_SIZE] = new ServerMovementData
+        clientMovementData[currentTick % BUFFER_SIZE] = new ClientSentMovementData
         {
             tick = currentTick,
             input = movementSettings.InputDir,
             rotation = transform.rotation.eulerAngles
         };
 
+        server_clientDataBuffer[currentTick % BUFFER_SIZE] = new ServerClientData
+        {
+            tick = currentTick,
+            position = transform.position,
+            rotation = transform.rotation.eulerAngles
+        };
+
         PlayerMovementServerRpc(clientMovementData[currentTick % BUFFER_SIZE]);
     }
 
-    //public override void FixedUpdateTick(out bool swallowTick)
-    //{
-    //    swallowTick = false;
-
-    //    if (!inputToggled) return;
-
-    //    while (time > tickTime)
-    //    {
-    //        time -= tickTime;
-    //        currentTick++;
-
-    //        MovementLogic();
-
-    //        if (IsHost) continue;
-
-    //        clientMovementData[currentTick % BUFFER_SIZE] = new ServerMovementData
-    //        {
-    //            tick = currentTick,
-    //            input = movementSettings.InputDir,
-    //            position = transform.position
-    //        };
-
-    //        if (currentTick < 2) return;
-
-    //        ServerRpcParams serverParams = new ServerRpcParams
-    //        {
-    //            Receive = new ServerRpcReceiveParams
-    //            {
-    //                SenderClientId = NetworkManager.LocalClientId
-    //            }
-    //        };
-
-    //        PlayerMovementServerRpc(clientMovementData[currentTick % BUFFER_SIZE], clientMovementData[(currentTick - 1) % BUFFER_SIZE], serverParams);
-    //    }
-    //}
-
     private void MovementLogic(Vector3 inputDir)
     {
+        inputDir = inputDir.normalized;
         if (inputDir.magnitude > 0.01f)
         {
             if (!playerStateComponent.HasStatusEffect(StatusEffect.Type.Stun))
@@ -295,7 +331,7 @@ public class MovementComponent : PlayerBaseComponent
                 //move player using rigidbody
                 float efficiency = isGrounded ? 1f : 0.5f;
                 float speed = shiftPressed ? movementSettings.speed * movementSettings.sprintMultiplier : movementSettings.speed;
-                rb.MovePosition(transform.position + (transform.TransformDirection(inputDir) * speed * Time.fixedDeltaTime));
+                rb.MovePosition(rb.position + (transform.TransformDirection(inputDir) * speed * Time.fixedDeltaTime));
             }
 
             if (isGrounded && walkIntervalTimer <= 0f)
@@ -309,35 +345,32 @@ public class MovementComponent : PlayerBaseComponent
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void PlayerMovementServerRpc(ServerMovementData currentData, ServerRpcParams serverParams = default)
+    private void PlayerMovementServerRpc(ClientSentMovementData currentData, ServerRpcParams serverParams = default)
     {
         movementData = currentData;
 
         clientMovementData[currentTick % BUFFER_SIZE] = currentData;
 
-        if ((currentTick % 20) == 0)
+        ReconciliateClientRpc(new ClientReconcileData()
         {
-            ReconciliateClientRpc(new ClientMovementData()
-            {
-                position = transform.position,
-                rotation = transform.rotation.eulerAngles
-            });
-        }
+            reconcileDiffTick = ReconcileTickDiff,
+            position = server_clientDataBuffer[ReconcileTick % BUFFER_SIZE].position,
+            rotation = server_clientDataBuffer[ReconcileTick % BUFFER_SIZE].rotation
+        },
+        new ClientReconcileData()
+        {
+            reconcileDiffTick = 0,
+            position = server_clientDataBuffer[currentTick % BUFFER_SIZE].position,
+            rotation = server_clientDataBuffer[currentTick % BUFFER_SIZE].rotation
+        });
     }
 
     [ClientRpc]
-    private void ReconciliateClientRpc(ClientMovementData clientData, ClientRpcParams clientParams = default)
+    private void ReconciliateClientRpc(ClientReconcileData reconcileTimeData, ClientReconcileData currentTimeData, ClientRpcParams clientParams = default)
     {
-        reconcilliating = true;
+        client_reconcileData = reconcileTimeData;
 
-        if (Vector3.Distance(clientData.position, transform.position) >= 3f)
-        {
-            transform.DORotate(clientData.rotation, 0.5f);
-            transform.DOMove(clientData.position, 0.5f);
-        }
 
-        //should be here for some reason. soft locks if inside of dotween
-        reconcilliating = false;
     }
 
     public override void OnShift(bool pressed, out bool swallowInput)
@@ -375,5 +408,33 @@ public class MovementComponent : PlayerBaseComponent
     {
         transform.rotation = Quaternion.LookRotation(forward);
         Debug.Log("Rotation Set");
+    }
+
+    private void OnDrawGizmos()
+    {
+        for (int i = 0; i < server_clientDataBuffer.Length; i++)
+        {
+            if (server_clientDataBuffer[i].tick == 0) continue;
+
+            Gizmos.color = Color.grey;
+            Gizmos.DrawWireSphere(server_clientDataBuffer[i].position, 0.1f);
+        }
+
+        if (IsServer)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(server_clientDataBuffer[(currentTick - ReconcileTickDiff) % BUFFER_SIZE].position, Vector3.one * 1f);
+        }
+
+        if (IsClient)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(GetLocalReconcileClientData.position, Vector3.one);
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(client_reconcileData.position, Vector3.one);
+
+            Gizmos.color = ShouldReconcile ? Color.red : Color.green;
+            Gizmos.DrawLine(GetLocalReconcileClientData.position, client_reconcileData.position);
+        }
     }
 }
