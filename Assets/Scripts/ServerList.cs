@@ -7,7 +7,6 @@ using Unity.Services.Matchmaker;
 using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnscriptedEngine;
 
@@ -52,8 +51,6 @@ public class ServerList : ULevelObject
     [SerializeField] private ServerBtn serverBtn;
     [SerializeField] private GameObject noServerText;
     [SerializeField] private Button refreshBtn;
-    [SerializeField] private RectTransform showPos;
-    [SerializeField] private RectTransform hidePos;
     [SerializeField] private RectTransform lookingForMatch;
     [SerializeField] private Button findMatchBtn;
 
@@ -108,10 +105,13 @@ public class ServerList : ULevelObject
     public void TemporarilyHideRefreshBtn()
     {
         refreshBtn.interactable = false;
+        StartCoroutine(ShowRefreshBtn());
+    }
 
-        Sequence hideSequence = DOTween.Sequence();
-        hideSequence.Append(refreshBtn.GetComponent<RectTransform>().DOMoveX(hidePos.position.x, 0.15f).SetEase(Ease.InOutExpo).OnComplete(() => refreshBtn.interactable = true));
-        hideSequence.Append(refreshBtn.GetComponent<RectTransform>().DOMoveX(showPos.position.x, 10f).SetEase(Ease.Linear).SetDelay(5f));
+    private IEnumerator ShowRefreshBtn()
+    {
+        yield return new WaitForSeconds(5f);
+        refreshBtn.interactable = true;
     }
 
     private IEnumerator GetServerList()

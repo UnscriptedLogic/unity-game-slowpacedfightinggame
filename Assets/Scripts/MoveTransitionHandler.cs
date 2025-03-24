@@ -9,41 +9,48 @@ public class MoveTransitionHandler : MonoBehaviour
 
     [SerializeField] private float duration = 0.5f;
     [SerializeField] private Ease ease = Ease.InOutExpo;
-    [SerializeField] private Vector2 hidePosition;
 
     [SerializeField] private Behaviour[] componentsToEnable;
 
     [SerializeField] private CanvasGroup canvasGroup;
 
-    [Header("Debug Settings")]
-    [SerializeField] private bool rememberHidePosition;
+    [SerializeField] private Vector2 showPos;
+    [SerializeField] private Vector2 hidePos;
+    [SerializeField] private bool previewHidePos;
+    private bool isPreviewingHide;
 
     private Vector2 finalPosition;
     private RectTransform rectTransform;
     private Tween transitionTween;
     private bool isOutro;
 
-    private void OnEnable()
+    public Tween TransitionTween => transitionTween;
+
+    private void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
-
-        if (!isOutro)
-        {
-            finalPosition = rectTransform.anchoredPosition;
-            rectTransform.anchoredPosition = hidePosition;
-
-            Transition(finalPosition, duration, delay, ease);
-        }
-        else
-        {
-            for (int i = 0; i < componentsToEnable.Length; i++)
-            {
-                componentsToEnable[i].enabled = true;
-            }
-        }
+        SendMessageUpwards("AssignTween", this, SendMessageOptions.DontRequireReceiver);
     }
 
-    private void Transition(Vector2 finalPos, float duration, float delay, Ease ease, GameObject root = null)
+    private void OnEnable()
+    {
+        TransitionOpen();
+    }
+
+    private void TransitionOpen()
+    {
+        rectTransform = GetComponent<RectTransform>();
+        rectTransform.localPosition = hidePos;
+        Transition(showPos, duration, delay, ease);
+    }
+
+    public void TransitionClose()
+    {
+        rectTransform = GetComponent<RectTransform>();
+        rectTransform.localPosition = showPos;
+        Transition(hidePos, duration, closeDelay, ease);
+    }
+
+    private void Transition(Vector2 finalPos, float duration, float delay, Ease ease)
     {
         if (rectTransform == null) return;
 
@@ -59,60 +66,32 @@ public class MoveTransitionHandler : MonoBehaviour
                 {
                     canvasGroup.interactable = true;
                 }
+
+                transitionTween = null;
             });
-
-        if (isOutro)
-        {
-            if (root)
-            {
-                Destroy(root, duration + closeDelay);
-            }
-            else
-            {
-                Destroy(gameObject, duration + closeDelay);
-            }
-
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (isOutro) return;
-
-        GameObject canvasParent = new GameObject();
-        Canvas canvas = canvasParent.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-
-        CanvasScaler canvasScaler = canvasParent.AddComponent<CanvasScaler>();
-        canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        canvasScaler.referenceResolution = new Vector2(1920, 1080);
-        canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-        canvasScaler.matchWidthOrHeight = 1f;
-
-        GameObject duplicate = Instantiate(gameObject, canvasParent.transform);
-        MoveTransitionHandler moveTransitionHandler = duplicate.GetComponent<MoveTransitionHandler>();
-        duplicate.GetComponent<RectTransform>().anchoredPosition = finalPosition;
-        moveTransitionHandler.isOutro = true;
-        moveTransitionHandler.enabled = true;
-        moveTransitionHandler.Transition(hidePosition, duration, closeDelay, ease, canvasParent);
-    }
-
-    private void OnDestroy()
-    {
-        if (transitionTween != null)
-        {
-            transitionTween.Kill();
-        }
     }
 
     private void OnValidate()
     {
-        if (rememberHidePosition)
-        {
-            rememberHidePosition = false;
+        if (Application.isPlaying) return;
 
+        if (previewHidePos && !isPreviewingHide)
+        {
             rectTransform = GetComponent<RectTransform>();
-            hidePosition = rectTransform.anchoredPosition;
+            showPos = rectTransform.localPosition;
+            isPreviewingHide = true;
+        }
+
+        if (!previewHidePos && isPreviewingHide)
+        {
+            rectTransform = GetComponent<RectTransform>();
+            rectTransform.localPosition = showPos;
+            isPreviewingHide = false;
+        }
+
+        if (isPreviewingHide)
+        {
+            rectTransform.localPosition = hidePos;
         }
     }
 }

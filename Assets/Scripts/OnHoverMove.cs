@@ -80,7 +80,15 @@ public class OnHoverMove : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         {
             if (IsUI(ref rectTransform))
             {
-                rectTransform.position = startLocation;
+                if (simPosSpace == Space.Self)
+                {
+                    rectTransform.localPosition = startLocation;
+                }
+                else
+                {
+                    rectTransform.position = startLocation;
+                }
+
                 isPreviewing = false;
             }
         }
@@ -89,7 +97,14 @@ public class OnHoverMove : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         {
             if (IsUI(ref rectTransform))
             {
-                rectTransform.position = startLocation + (GetRootRot(rectTransform, simRotSpace) * offset);
+                if (simPosSpace == Space.Self)
+                {
+                    rectTransform.localPosition = startLocation + (GetRootRot(rectTransform, simRotSpace) * offset);
+                }
+                else
+                {
+                    rectTransform.position = startLocation + (GetRootRot(rectTransform, simRotSpace) * offset);
+                }
             }
         }
     }
@@ -98,7 +113,15 @@ public class OnHoverMove : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         if (IsUI(ref rectTransform))
         {
-            rectTransform.DOMove(startLocation + (GetRootRot(rectTransform, simRotSpace) * offset), duration).SetEase(ease);
+            if (simPosSpace == Space.Self)
+            {
+                rectTransform.DOLocalMove(startLocation + (GetRootRot(rectTransform, simRotSpace) * offset), duration).SetEase(ease);
+            }
+            else
+            {
+                rectTransform.DOMove(startLocation + (GetRootRot(rectTransform, simRotSpace) * offset), duration).SetEase(ease);
+            }
+
         }
     }
 
@@ -106,7 +129,14 @@ public class OnHoverMove : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         if (IsUI(ref rectTransform))
         {
-            rectTransform.DOMove(startLocation, duration).SetEase(ease);
+            if (simPosSpace == Space.Self)
+            {
+                rectTransform.DOLocalMove(startLocation, duration).SetEase(ease);
+            }
+            else
+            {
+                rectTransform.DOMove(startLocation, duration).SetEase(ease);
+            }
         }
     }
 }

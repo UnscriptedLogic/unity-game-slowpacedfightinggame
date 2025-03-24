@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Cinemachine;
@@ -12,13 +13,26 @@ public class UIC_MainMenuUI : UCanvasController
         [SerializeField] private string id;
         [SerializeField] private RectTransform root;
         [SerializeField] private CinemachineCamera cineCam;
+        [SerializeField] private MoveHandlerManager moveHandler;
 
         public string ID => id;
         public RectTransform Root => root;
         public CinemachineCamera CineCam => cineCam;
 
-        public void SetActive(bool value)
+        public IEnumerator SetActive(bool value)
         {
+            if (Application.isPlaying)
+            {
+                if (moveHandler != null)
+                {
+                    if (!value)
+                    {
+                        moveHandler.Hide();
+                        yield return new WaitUntil(() => moveHandler.AreAllTweensDone);
+                    }
+                }
+            }
+            
             cineCam.gameObject.SetActive(value);
             root.gameObject.SetActive(value);
         }
@@ -46,14 +60,14 @@ public class UIC_MainMenuUI : UCanvasController
     {
         if (activatedSets.Count > 0)
         {
-            activatedSets.Peek().SetActive(false);
+            StartCoroutine(activatedSets.Peek().SetActive(false));
         }
 
         for (int i = 0; i < uiSets.Count; i++)
         {
             if (uiSets[i].ID == id)
             {
-                uiSets[i].SetActive(true);
+                StartCoroutine(uiSets[i].SetActive(true));
                 activatedSets.Push(uiSets[i]);
                 break;
             }
@@ -64,22 +78,23 @@ public class UIC_MainMenuUI : UCanvasController
     {
         if (activatedSets.Count <= 0) return;
 
-        activatedSets.Pop().SetActive(false);
-        activatedSets.Peek().SetActive(true);
+        StartCoroutine(activatedSets.Pop().SetActive(false));
+        StartCoroutine(activatedSets.Peek().SetActive(true));
     }
 
     private void ShowAtIndex(int index)
     {
         foreach (var set in uiSets)
         {
-            set.SetActive(false);
+            StartCoroutine(set.SetActive(false));
         }
 
-        uiSets[index].SetActive(true);
+        StartCoroutine(uiSets[index].SetActive(true));
     }
 
     private void OnValidate()
     {
+        if (Application.isPlaying) return;
         if (debugIndex < 0) debugIndex = 0;
         if (debugIndex >= uiSets.Count) debugIndex = uiSets.Count - 1;
         ShowAtIndex(debugIndex);
